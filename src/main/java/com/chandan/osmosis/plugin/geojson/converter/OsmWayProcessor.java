@@ -1,11 +1,11 @@
 package com.chandan.osmosis.plugin.geojson.converter;
 
+import com.chandan.geojson.model.Feature;
+import com.chandan.geojson.model.LineString;
+import com.chandan.geojson.model.LineStringProperties;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.chandan.osmosis.plugin.geojson.model.Feature;
-import com.chandan.osmosis.plugin.geojson.model.LineString;
-import com.chandan.osmosis.plugin.geojson.model.WayProperties;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 
 import java.io.OutputStreamWriter;
@@ -39,7 +39,7 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
     @Override
     public void process(Way way) {
         Feature<LineString> lineStringFeature = osmWayToFeatureLineStringConverter.getGeojsonModel(way);
-        if (((WayProperties)lineStringFeature.getProperties()).getHighWay() != null) {
+        if (((LineStringProperties)lineStringFeature.getProperties()).getHighway() != null) {
             try {
                 String json = Utils.jsonEncode(lineStringFeature);
                 writer.write(json + "\n");

@@ -1,10 +1,9 @@
 package com.chandan.osmosis.plugin.geojson.common;
 
+import com.chandan.geojson.model.CommonProperties;
+import com.chandan.geojson.model.Geometry;
 import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
 import org.openstreetmap.osmosis.core.domain.v0_6.TagCollection;
-
-import com.chandan.osmosis.plugin.geojson.model.CommonProperties;
-import com.chandan.osmosis.plugin.geojson.model.Geometry;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

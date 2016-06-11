@@ -1,9 +1,9 @@
 package com.chandan.osmosis.plugin.geojson.converter;
 
+import com.chandan.geojson.model.Feature;
+import com.chandan.geojson.model.Polygon;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
-import com.chandan.osmosis.plugin.geojson.model.Feature;
-import com.chandan.osmosis.plugin.geojson.model.Polygon;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 
 /**

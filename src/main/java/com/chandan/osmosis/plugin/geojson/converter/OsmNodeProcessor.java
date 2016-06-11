@@ -3,10 +3,11 @@ package com.chandan.osmosis.plugin.geojson.converter;
 import java.io.OutputStreamWriter;
 import java.text.MessageFormat;
 import java.util.Map;
+
+import com.chandan.geojson.model.Feature;
+import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.chandan.osmosis.plugin.geojson.model.Feature;
-import com.chandan.osmosis.plugin.geojson.model.Point;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 /**

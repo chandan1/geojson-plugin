@@ -1,8 +1,8 @@
 package com.chandan.osmosis.plugin.geojson.cache;
 
+import com.chandan.geojson.model.Feature;
+import com.chandan.geojson.model.LineString;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.chandan.osmosis.plugin.geojson.model.Feature;
-import com.chandan.osmosis.plugin.geojson.model.LineString;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.sleepycat.bind.tuple.LongBinding;

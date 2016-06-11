@@ -1,6 +1,6 @@
 package com.chandan.osmosis.plugin.geojson.cache;
 
-import com.chandan.osmosis.plugin.geojson.model.Geometry;
+import com.chandan.geojson.model.Geometry;
 
 public interface Cache<T extends Geometry> {
 	

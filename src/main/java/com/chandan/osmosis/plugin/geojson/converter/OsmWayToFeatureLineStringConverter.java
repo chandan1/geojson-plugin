@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.chandan.geojson.model.*;
 import org.openstreetmap.osmosis.core.domain.v0_6.TagCollection;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
@@ -12,11 +13,6 @@ import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.chandan.osmosis.plugin.geojson.model.Coordinate;
-import com.chandan.osmosis.plugin.geojson.model.Feature;
-import com.chandan.osmosis.plugin.geojson.model.LineString;
-import com.chandan.osmosis.plugin.geojson.model.Point;
-import com.chandan.osmosis.plugin.geojson.model.WayProperties;
 
 public class OsmWayToFeatureLineStringConverter extends OsmToFeatureConverter<Way, LineString> {
 
@@ -31,7 +27,7 @@ public class OsmWayToFeatureLineStringConverter extends OsmToFeatureConverter<Wa
 
 	@Override
 	public boolean isValid(Feature<LineString> feature) {
-		if (((WayProperties)feature.getProperties()).getHighWay() != null) {
+		if (((LineStringProperties)feature.getProperties()).getHighway() != null) {
 			return true;
 		}
 		return false;
@@ -54,19 +50,19 @@ public class OsmWayToFeatureLineStringConverter extends OsmToFeatureConverter<Wa
 		}
 		LineString lineString = new LineString();
 		lineString.setCoordinates(coordinates);
-		WayProperties wayProperties = getWayProperties(t);
+		LineStringProperties wayProperties = getWayProperties(t);
 		Feature<LineString> featureLineString = new Feature<LineString>(lineString, wayProperties);
 		lineStringCache.put(t.getId(), featureLineString);
 		return featureLineString;
 	}
 
-	private WayProperties getWayProperties(Way t) {
-		WayProperties wayProperties = new WayProperties();
+	private LineStringProperties getWayProperties(Way t) {
+		LineStringProperties wayProperties = new LineStringProperties();
 		Utils.populateCommonProperties(t, wayProperties);
 		if ((t.getTags() != null && t.getTags().size() > 0)) {
 			String highWay = ((TagCollection) t.getTags()).buildMap().get("highway");
 			//String building = ((TagCollection) t.getTags()).buildMap().get("building");
-			wayProperties.setHighWay(highWay);
+			wayProperties.setHighway(highWay);
 			wayProperties.setStartNodeId(t.getWayNodes().get(0).getNodeId());
 			wayProperties.setEndNodeId(t.getWayNodes().get(t.getWayNodes().size() - 1).getNodeId());
 			//wayProperties.setBuilding(building);
