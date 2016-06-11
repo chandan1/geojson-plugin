@@ -1,6 +1,9 @@
 package com.chandan.osmosis.plugin.geojson;
 
 import org.apache.commons.io.FileUtils;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.Options;
 import org.junit.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 

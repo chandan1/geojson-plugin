@@ -19,19 +19,11 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
-import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.chandan.osmosis.plugin.geojson.converter.OsmNodeToFeaturePointConverter;
-import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeatureLineStringConverter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.EnvironmentConfig;
-import org.openstreetmap.osmosis.core.util.TileCalculator;
 
 public class GeoJsonSink implements Sink {
 
 	private FeaturePointCache pointCache;
 	private FeatureLinestringCache lineStringCache;
-	private Environment dbEnv;
 	private final String geoJsonFile;
 	private final String directoryForCache;
 	private OutputStreamWriter writer;
@@ -57,13 +49,10 @@ public class GeoJsonSink implements Sink {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		EnvironmentConfig enConfig = new EnvironmentConfig();
-		enConfig.setAllowCreate(true);
-		this.dbEnv = new Environment(new File(directoryForCache), enConfig);
-		pointCache = new FeaturePointCache(dbEnv);
-		pointCache.init();
-		lineStringCache = new FeatureLinestringCache(dbEnv);
-		lineStringCache.init();
+		pointCache = new FeaturePointCache(directoryForCache);
+		pointCache.open();
+		lineStringCache = new FeatureLinestringCache(directoryForCache);
+		lineStringCache.open();
 		this.osmNodeProcessor = new OsmNodeProcessor(pointCache, writer);
 		this.osmWayProcessor = new OsmWayProcessor(pointCache, lineStringCache, writer);
 		System.out.println("GeoJsonPlugin initialised");
@@ -83,10 +72,11 @@ public class GeoJsonSink implements Sink {
 	public void release() {
 		try {
 			writer.close();
+			pointCache.close();
+			lineStringCache.close();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		dbEnv.close();
 		System.out.println("GeoJsonPlugin released");
 	}
 

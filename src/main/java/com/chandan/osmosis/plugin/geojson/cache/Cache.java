@@ -4,9 +4,11 @@ import com.chandan.geojson.model.Geometry;
 
 public interface Cache<T extends Geometry> {
 	
-	public void init();
+	void open();
 	
-	public T get(long key);
+	T get(long key);
 	
-	public void put(long key, T t);
+	void put(long key, T t);
+
+	void close();
 }

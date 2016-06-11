@@ -3,47 +3,53 @@ package com.chandan.osmosis.plugin.geojson.cache;
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sleepycat.bind.tuple.LongBinding;
-import com.sleepycat.bind.tuple.StringBinding;
-import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseConfig;
-import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.OperationStatus;
+import com.google.common.primitives.Longs;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.Options;
+
+import java.io.File;
 
 
 public class FeaturePointCache implements Cache<Feature<Point>>{
 
-	private Environment dbEnv;
-	private Database pointCacheDb;
+	private DB pointCacheDb;
+	private final String pathToDir;
 	
-	public FeaturePointCache(Environment dbEnv) {
-		this.dbEnv = dbEnv;
+	public FeaturePointCache(String pathToDir) {
+		this.pathToDir = pathToDir;
 	}
 
 	@Override
-	public void init() {
-		DatabaseConfig dbConfig = new DatabaseConfig();
-		dbConfig.setAllowCreate(true);
-		pointCacheDb = dbEnv.openDatabase(null, "pointCacheDb", dbConfig);
-	}	
-	
+	public void open() {
+		Options options = new Options();
+		options.createIfMissing(true);
+		try {
+			pointCacheDb = JniDBFactory.factory.open(new File(pathToDir + "/pointCacheDb"), options);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void close() {
+		try {
+			pointCacheDb.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	@Override
 	public Feature<Point> get(long key) {
-		DatabaseEntry keyEntry = new DatabaseEntry();
-		DatabaseEntry dataEntry = new DatabaseEntry();
-		LongBinding.longToEntry(key, keyEntry);
-		OperationStatus status = pointCacheDb.get(null, keyEntry, dataEntry, null);
-		if (status == OperationStatus.SUCCESS) {
-			byte[] data = dataEntry.getData();
-			if (data != null) {
-				try {
-					return Utils.<Feature<Point>>jsonDecode(data, new TypeReference<Feature<Point>>() {});
-				} catch (Exception e) {
-					e.printStackTrace(System.err);
-				}
+
+		byte[] data = pointCacheDb.get(Longs.toByteArray(key));
+		if (data != null) {
+			try {
+				return Utils.<Feature<Point>>jsonDecode(data, new TypeReference<Feature<Point>>() {});
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		}
 		return null;
@@ -51,16 +57,15 @@ public class FeaturePointCache implements Cache<Feature<Point>>{
 
 	@Override
 	public void put(long key, Feature<Point> t) {
-		DatabaseEntry keyEntry = new DatabaseEntry();
-		DatabaseEntry dataEntry = new DatabaseEntry();
-		LongBinding.longToEntry(key, keyEntry);
 		try {
-			StringBinding.stringToEntry(Utils.jsonEncode(t), dataEntry);
-			pointCacheDb.put(null, keyEntry, dataEntry);
+			String data = Utils.jsonEncode(t);
+			if (data != null) {
+				pointCacheDb.put(Longs.toByteArray(key), data.getBytes());
+			}
 		}
-		catch (JsonProcessingException e) {
-			e.printStackTrace(System.err);
-		}		
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 }

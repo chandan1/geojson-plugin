@@ -3,45 +3,51 @@ package com.chandan.osmosis.plugin.geojson.cache;
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.LineString;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.sleepycat.bind.tuple.LongBinding;
-import com.sleepycat.bind.tuple.StringBinding;
-import com.sleepycat.je.Database;
-import com.sleepycat.je.DatabaseConfig;
-import com.sleepycat.je.DatabaseEntry;
-import com.sleepycat.je.Environment;
-import com.sleepycat.je.OperationStatus;
+import com.google.common.primitives.Longs;
+import org.fusesource.leveldbjni.JniDBFactory;
+import org.iq80.leveldb.DB;
+import org.iq80.leveldb.Options;
+
+import java.io.File;
 
 public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 
-	private Database featureLinestringCacheDb;
-	private Environment dbEnv;
+	private DB featureLinestringCacheDb;
+	private final String pathToDir;
 	
-	public FeatureLinestringCache(Environment dbEnv) {
-		this.dbEnv = dbEnv;
+	public FeatureLinestringCache(String pathToDir) {
+		this.pathToDir = pathToDir;
 	}
-	
-	public void init() {
-		DatabaseConfig dbConfig = new DatabaseConfig();
-		dbConfig.setAllowCreate(true);
-		featureLinestringCacheDb = this.dbEnv.openDatabase(null, "featureLinestringCacheDb", dbConfig);
+
+	@Override
+	public void open() {
+		Options options = new Options();
+		options.createIfMissing(true);
+		try {
+			featureLinestringCacheDb = JniDBFactory.factory.open(new File(pathToDir + "/featureLinestringCacheDb"), options);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
+	public void close() {
+		try {
+			featureLinestringCacheDb.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	@Override
 	public Feature<LineString> get(long key) {
-		DatabaseEntry keyEntry = new DatabaseEntry();
-		DatabaseEntry dataEntry = new DatabaseEntry();
-		LongBinding.longToEntry(key, keyEntry);
-		OperationStatus status = featureLinestringCacheDb.get(null, keyEntry, dataEntry, null);
-		if (status == OperationStatus.SUCCESS) {
-			byte[] data = dataEntry.getData();
-			if (data != null) {
-				try {
-					return Utils.<Feature<LineString>>jsonDecode(data, new TypeReference<Feature<LineString>>() {});
-				} catch (Exception e) {
-					e.printStackTrace(System.err);
-				}
+		byte[] data = featureLinestringCacheDb.get(Longs.toByteArray(key));
+		if (data != null) {
+			try {
+				return Utils.<Feature<LineString>>jsonDecode(data, new TypeReference<Feature<LineString>>() {});
+			} catch (Exception e) {
+				throw new RuntimeException(e);
 			}
 		}
 		return null;
@@ -49,15 +55,15 @@ public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 
 	@Override
 	public void put(long key, Feature<LineString> t) {
-		DatabaseEntry keyEntry = new DatabaseEntry();
-		DatabaseEntry dataEntry = new DatabaseEntry();
-		LongBinding.longToEntry(key, keyEntry);
+
 		try {
-			StringBinding.stringToEntry(Utils.jsonEncode(t), dataEntry);
-			featureLinestringCacheDb.put(null, keyEntry, dataEntry);
+			String data = Utils.jsonEncode(t);
+			if (data != null) {
+				featureLinestringCacheDb.put(Longs.toByteArray(key), data.getBytes());
+			}
 		}
-		catch (JsonProcessingException e) {
-			e.printStackTrace(System.err);
+		catch (Exception e) {
+			throw new RuntimeException(e);
 		}		
 	}
 }
