@@ -1,4 +1,4 @@
-package com.chandan.osmosis.plugin.geojson.converter;
+package com.chandan.osmosis.plugin.geojson.processor;
 
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.LineString;
@@ -6,6 +6,9 @@ import com.chandan.geojson.model.LineStringProperties;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
+import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeatureLineStringConverter;
+import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeaturePolygonConverter;
+import com.chandan.osmosis.plugin.geojson.processor.OsmEntityProcessor;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 
 import java.io.OutputStreamWriter;

@@ -1,4 +1,4 @@
-package com.chandan.osmosis.plugin.geojson.converter;
+package com.chandan.osmosis.plugin.geojson.processor;
 
 import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
 

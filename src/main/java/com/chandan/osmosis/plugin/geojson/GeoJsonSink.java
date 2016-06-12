@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Map;
 
-import com.chandan.osmosis.plugin.geojson.converter.OsmNodeProcessor;
-import com.chandan.osmosis.plugin.geojson.converter.OsmWayProcessor;
+import com.chandan.osmosis.plugin.geojson.processor.OsmNodeProcessor;
+import com.chandan.osmosis.plugin.geojson.processor.OsmWayProcessor;
 import org.apache.commons.io.FileUtils;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
@@ -19,6 +19,7 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
+import org.openstreetmap.osmosis.core.task.v0_6.Source;
 
 public class GeoJsonSink implements Sink {
 

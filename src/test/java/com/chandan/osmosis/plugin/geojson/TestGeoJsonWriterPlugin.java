@@ -6,6 +6,7 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.junit.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
+import org.openstreetmap.osmosis.tagfilter.TagFilterPluginLoader;
 
 import java.io.File;
 
@@ -26,6 +27,9 @@ public class TestGeoJsonWriterPlugin {
         		"com.chandan.osmosis.plugin.geojson.GeoJsonPluginLoader",
                 "--read-xml",
                 osmXmlPath,
+                "--tag-filter", "accept-ways", "highway=*",
+                "--tag-filter", "accept-relations", "highway=*",
+                "--used-node",
                 "--geojson-plugin",
                 "geojsonFile=" + geoJsonFile,
                 "directoryForCache=" + directoryForCache
