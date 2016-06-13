@@ -8,6 +8,7 @@ import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
 import com.chandan.osmosis.plugin.geojson.converter.OsmNodeToFeaturePointConverter;
+import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 
 /**
@@ -17,12 +18,12 @@ public class OsmNodeProcessor extends OsmEntityProcessor<Node> {
 
     private final FeaturePointCache featurePointCache;
 
-    private final OutputStreamWriter writer;
+    private final FeatureWriter writer;
 
     private final OsmNodeToFeaturePointConverter osmNodeToFeaturePointConverter;
 
     public OsmNodeProcessor(FeaturePointCache featurePointCache,
-                            OutputStreamWriter writer) {
+                            FeatureWriter writer) {
         this.featurePointCache = featurePointCache;
         this.writer = writer;
         this.osmNodeToFeaturePointConverter = new OsmNodeToFeaturePointConverter(featurePointCache);
@@ -32,13 +33,7 @@ public class OsmNodeProcessor extends OsmEntityProcessor<Node> {
     public void process(Node node) {
         Feature<Point> pointFeature = osmNodeToFeaturePointConverter.getGeojsonModel(node);
         if (pointFeature.getProperties() != null) {
-            try {
-                String json = Utils.jsonEncode(pointFeature);
-                writer.write(json + "\n");
-            } catch (Exception e) {
-                throw new RuntimeException(MessageFormat.format("Exception in json encoding for node id {0}",
-                        new Object[]{node.getId()}), e);
-            }
+            writer.write(pointFeature);
         }
     }
 }

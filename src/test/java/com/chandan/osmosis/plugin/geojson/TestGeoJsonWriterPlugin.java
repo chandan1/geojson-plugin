@@ -31,7 +31,8 @@ public class TestGeoJsonWriterPlugin {
                 "--tag-filter", "accept-relations", "highway=*",
                 "--used-node",
                 "--geojson-plugin",
-                "geojsonFile=" + geoJsonFile,
+                "geojson-writer=file-writer",
+                "geojson-file=" + geoJsonFile,
                 "directoryForCache=" + directoryForCache
         });
     }

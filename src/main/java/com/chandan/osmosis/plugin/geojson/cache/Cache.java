@@ -1,8 +1,9 @@
 package com.chandan.osmosis.plugin.geojson.cache;
 
+import com.chandan.geojson.model.GeoJson;
 import com.chandan.geojson.model.Geometry;
 
-public interface Cache<T extends Geometry> {
+public interface Cache<T extends GeoJson> {
 	
 	void open();
 	

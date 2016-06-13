@@ -9,6 +9,7 @@ import com.chandan.osmosis.plugin.geojson.common.Utils;
 import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeatureLineStringConverter;
 import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeaturePolygonConverter;
 import com.chandan.osmosis.plugin.geojson.processor.OsmEntityProcessor;
+import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 
 import java.io.OutputStreamWriter;
@@ -23,7 +24,7 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
     private final FeatureLinestringCache featureLinestringCache;
 
-    private final OutputStreamWriter writer;
+    private final FeatureWriter writer;
 
     private final OsmWayToFeatureLineStringConverter osmWayToFeatureLineStringConverter;
 
@@ -31,7 +32,7 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
     public OsmWayProcessor(FeaturePointCache featurePointCache,
                            FeatureLinestringCache featureLinestringCache,
-                           OutputStreamWriter writer) {
+                           FeatureWriter writer) {
         this.featurePointCache = featurePointCache;
         this.featureLinestringCache = featureLinestringCache;
         this.writer = writer;
@@ -43,13 +44,7 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
     public void process(Way way) {
         Feature<LineString> lineStringFeature = osmWayToFeatureLineStringConverter.getGeojsonModel(way);
         if (((LineStringProperties)lineStringFeature.getProperties()).getHighway() != null) {
-            try {
-                String json = Utils.jsonEncode(lineStringFeature);
-                writer.write(json + "\n");
-            } catch (Exception e) {
-                throw new RuntimeException(MessageFormat.format("Exception in json encoding for way id {0}",
-                        new Object[]{way.getId()}), e);
-            }
+            writer.write(lineStringFeature);
         } else {
 
         }
