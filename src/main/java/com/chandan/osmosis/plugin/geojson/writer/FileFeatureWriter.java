@@ -2,6 +2,7 @@ package com.chandan.osmosis.plugin.geojson.writer;
 
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Geometry;
+import com.chandan.osmosis.plugin.geojson.common.Utils;
 import com.google.common.collect.ImmutableList;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
@@ -23,7 +24,11 @@ public class FileFeatureWriter extends FeatureWriter {
 
     @Override
     public void write(Feature<? extends Geometry> feature) {
-
+        try {
+            writer.write(Utils.jsonEncode(feature) + "\n");
+        } catch (Exception e) {
+            throw new OsmosisRuntimeException(e);
+        }
     }
 
     @Override
