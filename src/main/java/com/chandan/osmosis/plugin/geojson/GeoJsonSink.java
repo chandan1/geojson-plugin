@@ -1,35 +1,38 @@
 package com.chandan.osmosis.plugin.geojson;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.util.Map;
-
+import com.chandan.geojson.model.BoundingBox;
+import com.chandan.geojson.model.Coordinate;
+import com.chandan.geojson.model.Feature;
+import com.chandan.geojson.model.Polygon;
+import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
+import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.processor.OsmNodeProcessor;
 import com.chandan.osmosis.plugin.geojson.processor.OsmWayProcessor;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FileUtils;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
-import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
-import org.openstreetmap.osmosis.core.domain.v0_6.EntityType;
-import org.openstreetmap.osmosis.core.domain.v0_6.Node;
-import org.openstreetmap.osmosis.core.domain.v0_6.Relation;
-import org.openstreetmap.osmosis.core.domain.v0_6.Way;
+import org.openstreetmap.osmosis.core.domain.v0_6.*;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
-import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
-import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
-import org.openstreetmap.osmosis.core.task.v0_6.Source;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public class GeoJsonSink implements Sink {
 
-	private FeaturePointCache pointCache;
-	private FeatureLinestringCache lineStringCache;
 	private final String directoryForCache;
+
+	private FeaturePointCache pointCache;
+
+	private FeatureLinestringCache lineStringCache;
+
 	private FeatureWriter featureWriter;
+
 	private OsmNodeProcessor osmNodeProcessor;
+
 	private OsmWayProcessor osmWayProcessor;
 
 	public GeoJsonSink(FeatureWriter featureWriter, String directoryForCache) {
@@ -66,7 +69,8 @@ public class GeoJsonSink implements Sink {
 			featureWriter.close();
 			pointCache.close();
 			lineStringCache.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new OsmosisRuntimeException(e);
 		}
 		System.out.println("GeoJsonPlugin released");
@@ -77,6 +81,21 @@ public class GeoJsonSink implements Sink {
 		Entity entity = entityContainer.getEntity();
 		EntityType entityType = entity.getType();
 		switch (entityType) {
+		case Bound:
+			Bound bound = (Bound) entity;
+			List<List<Coordinate>> coordinates = ImmutableList.of(ImmutableList.of(
+					new Coordinate((float) bound.getLeft(), (float) bound.getBottom()),
+					new Coordinate((float) bound.getRight(), (float) bound.getBottom()),
+					new Coordinate((float) bound.getRight(), (float) bound.getTop()),
+					new Coordinate((float) bound.getLeft(), (float) bound.getTop()),
+					new Coordinate((float) bound.getLeft(), (float) bound.getBottom())
+			));
+			Polygon polygon = new Polygon(coordinates);
+			BoundingBox boundingBox = new BoundingBox((float) bound.getLeft(), (float) bound.getBottom(),
+					(float) bound.getRight(), (float) bound.getTop());
+			Feature<Polygon> feature = new Feature<>(null, polygon, null, boundingBox);
+			featureWriter.write(feature);
+			break;
 		case Node:
 			Node node = (Node) entity;
 			osmNodeProcessor.process(node);

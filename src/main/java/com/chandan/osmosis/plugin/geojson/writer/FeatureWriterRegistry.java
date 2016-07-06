@@ -10,26 +10,26 @@ import java.util.Map;
  */
 public final class FeatureWriterRegistry {
 
-    private Map<String, FeatureWriter> registry = new HashMap<>();
+	private static FeatureWriterRegistry INSTANCE = new FeatureWriterRegistry();
 
-    private FeatureWriterRegistry() {
-    }
+	private Map<String, FeatureWriter> registry = new HashMap<>();
 
-    private static FeatureWriterRegistry INSTANCE = new FeatureWriterRegistry();
+	private FeatureWriterRegistry() {
+	}
 
-    public static FeatureWriterRegistry instance() {
-        return INSTANCE;
-    }
+	public static FeatureWriterRegistry instance() {
+		return INSTANCE;
+	}
 
-    public void registerWriter(String name, FeatureWriter writer) {
-        registry.put(name, writer);
-    }
+	public void registerWriter(String name, FeatureWriter writer) {
+		registry.put(name, writer);
+	}
 
-    public FeatureWriter getFileWriter(String name) {
-        FeatureWriter featureWriter = registry.get(name);
-        if (featureWriter == null) {
-            throw new OsmosisRuntimeException("geojson-writer " + name + " is invalid");
-        }
-        return featureWriter;
-    }
+	public FeatureWriter getFileWriter(String name) {
+		FeatureWriter featureWriter = registry.get(name);
+		if (featureWriter == null) {
+			throw new OsmosisRuntimeException("geojson-writer " + name + " is invalid");
+		}
+		return featureWriter;
+	}
 }

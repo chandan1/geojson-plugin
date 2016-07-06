@@ -13,9 +13,10 @@ import java.io.File;
 
 public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 
-	private DB featureLinestringCacheDb;
 	private final String pathToDir;
-	
+
+	private DB featureLinestringCacheDb;
+
 	public FeatureLinestringCache(String pathToDir) {
 		this.pathToDir = pathToDir;
 	}
@@ -25,8 +26,10 @@ public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 		Options options = new Options();
 		options.createIfMissing(true);
 		try {
-			featureLinestringCacheDb = JniDBFactory.factory.open(new File(pathToDir + "/featureLinestringCacheDb"), options);
-		} catch (Exception e) {
+			featureLinestringCacheDb = JniDBFactory.factory
+					.open(new File(pathToDir + "/featureLinestringCacheDb"), options);
+		}
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -35,18 +38,21 @@ public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 	public void close() {
 		try {
 			featureLinestringCacheDb.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
-	
+
 	@Override
 	public Feature<LineString> get(long key) {
 		byte[] data = featureLinestringCacheDb.get(Longs.toByteArray(key));
 		if (data != null) {
 			try {
-				return Utils.<Feature<LineString>>jsonDecode(data, new TypeReference<Feature<LineString>>() {});
-			} catch (Exception e) {
+				return Utils.<Feature<LineString>>jsonDecode(data, new TypeReference<Feature<LineString>>() {
+				});
+			}
+			catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
@@ -64,6 +70,6 @@ public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
-		}		
+		}
 	}
 }

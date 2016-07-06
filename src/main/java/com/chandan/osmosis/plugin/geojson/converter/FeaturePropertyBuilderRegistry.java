@@ -10,25 +10,26 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
  */
 public final class FeaturePropertyBuilderRegistry {
 
-    private final Table<Class<? extends Entity>, Class<? extends Geometry>,
-            FeaturePropertyBuilder<? extends Entity, ? extends Geometry>> table = HashBasedTable.create();
+	private static final FeaturePropertyBuilderRegistry INSTANCE = new FeaturePropertyBuilderRegistry();
 
-    private static final FeaturePropertyBuilderRegistry INSTANCE = new FeaturePropertyBuilderRegistry();
+	private final Table<Class<? extends Entity>, Class<? extends Geometry>,
+			FeaturePropertyBuilder<? extends Entity, ? extends Geometry>> table = HashBasedTable.create();
 
-    private FeaturePropertyBuilderRegistry() {
-    }
+	private FeaturePropertyBuilderRegistry() {
+	}
 
-    public static FeaturePropertyBuilderRegistry instance() {
-        return INSTANCE;
-    }
+	public static FeaturePropertyBuilderRegistry instance() {
+		return INSTANCE;
+	}
 
-    public <T extends Entity,U extends Geometry> void addPropertyBuilder(Class<T> osmEntity,
-                                   Class<U> geojsonGeometry,
-                                   FeaturePropertyBuilder<T, U> propertyBuilder) {
-        table.put(osmEntity, geojsonGeometry, propertyBuilder);
-    }
+	public <T extends Entity, U extends Geometry> void addPropertyBuilder(Class<T> osmEntity,
+			Class<U> geojsonGeometry,
+			FeaturePropertyBuilder<T, U> propertyBuilder) {
+		table.put(osmEntity, geojsonGeometry, propertyBuilder);
+	}
 
-    public <T extends Entity, U extends Geometry> FeaturePropertyBuilder<T, U> getPropertyBuilder(Class<T> osmEntity, Class<U> geojsonGeometry) {
-        return (FeaturePropertyBuilder<T, U>) table.get(osmEntity, geojsonGeometry);
-    }
+	public <T extends Entity, U extends Geometry> FeaturePropertyBuilder<T, U> getPropertyBuilder(Class<T> osmEntity,
+			Class<U> geojsonGeometry) {
+		return (FeaturePropertyBuilder<T, U>) table.get(osmEntity, geojsonGeometry);
+	}
 }

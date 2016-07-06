@@ -1,11 +1,10 @@
 package com.chandan.osmosis.plugin.geojson;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.chandan.geojson.model.CommonProperties;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManagerFactory;
 import org.openstreetmap.osmosis.core.plugin.PluginLoader;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class GeoJsonPluginLoader implements PluginLoader {
 

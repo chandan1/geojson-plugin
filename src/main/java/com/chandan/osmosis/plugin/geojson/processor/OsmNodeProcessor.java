@@ -1,13 +1,8 @@
 package com.chandan.osmosis.plugin.geojson.processor;
 
-import java.io.OutputStreamWriter;
-import java.text.MessageFormat;
-
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
-import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.chandan.osmosis.plugin.geojson.converter.FeaturePropertyBuilder;
 import com.chandan.osmosis.plugin.geojson.converter.OsmNodeToFeaturePointConverter;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
@@ -17,25 +12,25 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Node;
  */
 public class OsmNodeProcessor extends OsmEntityProcessor<Node> {
 
-    private final FeaturePointCache featurePointCache;
+	private final FeaturePointCache featurePointCache;
 
-    private final FeatureWriter writer;
+	private final FeatureWriter writer;
 
-    private final OsmNodeToFeaturePointConverter osmNodeToFeaturePointConverter;
+	private final OsmNodeToFeaturePointConverter osmNodeToFeaturePointConverter;
 
-    public OsmNodeProcessor(FeaturePointCache featurePointCache,
-                            FeatureWriter writer
-                            ) {
-        this.featurePointCache = featurePointCache;
-        this.writer = writer;
-        this.osmNodeToFeaturePointConverter = new OsmNodeToFeaturePointConverter(featurePointCache);
-    }
+	public OsmNodeProcessor(FeaturePointCache featurePointCache,
+			FeatureWriter writer
+	) {
+		this.featurePointCache = featurePointCache;
+		this.writer = writer;
+		this.osmNodeToFeaturePointConverter = new OsmNodeToFeaturePointConverter(featurePointCache);
+	}
 
-    @Override
-    public void process(Node node) {
-        Feature<Point> pointFeature = osmNodeToFeaturePointConverter.convert(node);
-        if (pointFeature != null) {
-            writer.write(pointFeature);
-        }
-    }
+	@Override
+	public void process(Node node) {
+		Feature<Point> pointFeature = osmNodeToFeaturePointConverter.convert(node);
+		if (pointFeature != null) {
+			writer.write(pointFeature);
+		}
+	}
 }

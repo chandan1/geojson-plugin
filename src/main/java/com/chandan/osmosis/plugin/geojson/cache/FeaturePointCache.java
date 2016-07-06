@@ -11,12 +11,12 @@ import org.iq80.leveldb.Options;
 
 import java.io.File;
 
+public class FeaturePointCache implements Cache<Feature<Point>> {
 
-public class FeaturePointCache implements Cache<Feature<Point>>{
+	private final String pathToDir;
 
 	private DB pointCacheDb;
-	private final String pathToDir;
-	
+
 	public FeaturePointCache(String pathToDir) {
 		this.pathToDir = pathToDir;
 	}
@@ -27,7 +27,8 @@ public class FeaturePointCache implements Cache<Feature<Point>>{
 		options.createIfMissing(true);
 		try {
 			pointCacheDb = JniDBFactory.factory.open(new File(pathToDir + "/pointCacheDb"), options);
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -36,7 +37,8 @@ public class FeaturePointCache implements Cache<Feature<Point>>{
 	public void close() {
 		try {
 			pointCacheDb.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -47,8 +49,10 @@ public class FeaturePointCache implements Cache<Feature<Point>>{
 		byte[] data = pointCacheDb.get(Longs.toByteArray(key));
 		if (data != null) {
 			try {
-				return Utils.<Feature<Point>>jsonDecode(data, new TypeReference<Feature<Point>>() {});
-			} catch (Exception e) {
+				return Utils.<Feature<Point>>jsonDecode(data, new TypeReference<Feature<Point>>() {
+				});
+			}
+			catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}

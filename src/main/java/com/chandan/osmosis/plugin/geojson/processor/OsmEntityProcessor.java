@@ -7,5 +7,5 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
  */
 public abstract class OsmEntityProcessor<T extends Entity> {
 
-    public abstract void process(T t);
+	public abstract void process(T t);
 }

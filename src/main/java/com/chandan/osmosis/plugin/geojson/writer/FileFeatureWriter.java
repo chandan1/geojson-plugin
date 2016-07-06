@@ -17,53 +17,59 @@ import java.util.Map;
  */
 public class FileFeatureWriter extends FeatureWriter {
 
-    private final String name = "file-writer";
-    private final List<String> arguments = ImmutableList.of("geojson-file");
-    private OutputStreamWriter writer;
-    private Map<String, String> params;
+	private final String name = "file-writer";
 
-    @Override
-    public void write(Feature<? extends Geometry> feature) {
-        try {
-            writer.write(Utils.jsonEncode(feature) + "\n");
-        } catch (Exception e) {
-            throw new OsmosisRuntimeException(e);
-        }
-    }
+	private final List<String> arguments = ImmutableList.of("geojson-file");
 
-    @Override
-    public void init(Map<String, String> params) {
-        this.params = params;
-    }
+	private OutputStreamWriter writer;
 
-    @Override
-    public void open() {
+	private Map<String, String> params;
 
-        try {
-            String geoJsonFile = params.get("geojson-file");
-            writer = new OutputStreamWriter(new FileOutputStream(new File(geoJsonFile)));
-        } catch (Exception e) {
-            throw new OsmosisRuntimeException(e);
-        }
-    }
+	@Override
+	public void write(Feature<? extends Geometry> feature) {
+		try {
+			writer.write(Utils.jsonEncode(feature) + "\n");
+		}
+		catch (Exception e) {
+			throw new OsmosisRuntimeException(e);
+		}
+	}
 
-    @Override
-    public void close() {
-        try {
-            writer.flush();
-            writer.close();
-        } catch (Exception e) {
-            throw new OsmosisRuntimeException(e);
-        }
-    }
+	@Override
+	public void init(Map<String, String> params) {
+		this.params = params;
+	}
 
-    @Override
-    public String getName() {
-        return name;
-    }
+	@Override
+	public void open() {
 
-    @Override
-    public List<String> getArguments() {
-        return arguments;
-    }
+		try {
+			String geoJsonFile = params.get("geojson-file");
+			writer = new OutputStreamWriter(new FileOutputStream(new File(geoJsonFile)));
+		}
+		catch (Exception e) {
+			throw new OsmosisRuntimeException(e);
+		}
+	}
+
+	@Override
+	public void close() {
+		try {
+			writer.flush();
+			writer.close();
+		}
+		catch (Exception e) {
+			throw new OsmosisRuntimeException(e);
+		}
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public List<String> getArguments() {
+		return arguments;
+	}
 }

@@ -3,28 +3,25 @@ package com.chandan.osmosis.plugin.geojson.converter;
 import com.chandan.geojson.model.Coordinate;
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Point;
-import com.chandan.geojson.model.PointProperties;
-import lombok.NoArgsConstructor;
+import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.TagCollection;
-
-import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
-import com.chandan.osmosis.plugin.geojson.common.Utils;
-import org.openstreetmap.osmosis.core.store.ObjectDataInputIterator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Node, Point> {
 
 	private final FeaturePointCache featurePointCache;
-	private OsmToFeatureConverter<Node, Point> nextConverter;
+
 	private final FeaturePropertyBuilder<Node, Point> featurePropertyBuilder;
+
+	private OsmToFeatureConverter<Node, Point> nextConverter;
 
 	public OsmNodeToFeaturePointConverter(FeaturePointCache featurePointCache) {
 		this.featurePointCache = featurePointCache;
-		this.featurePropertyBuilder = FeaturePropertyBuilderRegistry.instance().getPropertyBuilder(Node.class, Point.class);
+		this.featurePropertyBuilder = FeaturePropertyBuilderRegistry.instance()
+				.getPropertyBuilder(Node.class, Point.class);
 	}
 
 	@Override
@@ -37,7 +34,8 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 		featurePointCache.put(node.getId(), feature);
 		if (feature.getProperties() != null) {
 			return feature;
-		} else {
+		}
+		else {
 			return null;
 		}
 	}
