@@ -36,7 +36,7 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 			return null;
 		}
 		if (t.getWayNodes().get(0).getNodeId() == t.getWayNodes().get(t.getWayNodes().size() - 1).getNodeId()
-				&& ((TagCollection)t.getTags()).buildMap().containsKey("area")) {
+				&& t.getTags().contains(new Tag("area", "yes"))) {
 			if (this.nextConverter != null) {
 				return this.nextConverter.convert(t);
 			} else {
