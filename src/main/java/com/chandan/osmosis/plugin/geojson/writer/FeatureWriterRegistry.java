@@ -2,28 +2,23 @@ package com.chandan.osmosis.plugin.geojson.writer;
 
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by chandan on 12/06/16.
  */
-public class FeatureWriterRegistry {
+public final class FeatureWriterRegistry {
 
     private Map<String, FeatureWriter> registry = new HashMap<>();
 
     private FeatureWriterRegistry() {
     }
 
-    private static FeatureWriterRegistry instance;
+    private static FeatureWriterRegistry INSTANCE = new FeatureWriterRegistry();
 
-    static {
-        instance = new FeatureWriterRegistry();
-    }
-
-    public static FeatureWriterRegistry getInstance() {
-        return instance;
+    public static FeatureWriterRegistry instance() {
+        return INSTANCE;
     }
 
     public void registerWriter(String name, FeatureWriter writer) {

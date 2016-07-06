@@ -5,7 +5,6 @@ import com.chandan.geojson.model.Geometry;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Created by chandan on 12/06/16.
@@ -26,6 +25,6 @@ public abstract class FeatureWriter {
     public abstract List<String> getArguments();
 
     public void register() {
-        FeatureWriterRegistry.getInstance().registerWriter(getName(), this);
+        FeatureWriterRegistry.instance().registerWriter(getName(), this);
     }
 }

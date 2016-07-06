@@ -9,16 +9,10 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 /**
  * Created by chandan on 5/4/16.
  */
-public class OsmWayToFeaturePolygonConverter extends OsmToFeatureConverter<Way, Polygon>{
+public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Way, Polygon>{
 
     private final FeaturePointCache pointCache;
-
     private final FeatureLinestringCache lineStringCache;
-
-    @Override
-    public boolean isValid(Feature<Polygon> feature) {
-        return false;
-    }
 
     public OsmWayToFeaturePolygonConverter(FeaturePointCache pointCache, FeatureLinestringCache lineStringCache) {
         this.pointCache = pointCache;
@@ -26,7 +20,17 @@ public class OsmWayToFeaturePolygonConverter extends OsmToFeatureConverter<Way, 
     }
 
     @Override
-    public Feature<Polygon> getGeojsonModel(Way t) {
+    public Feature<Polygon> convert(Way t) {
         return null;
+    }
+
+    @Override
+    public void setNext(OsmToFeatureConverter<Way, Polygon> nextConverter) {
+
+    }
+
+    @Override
+    public void setProperties(Way way, Feature.FeatureBuilder<Polygon> propertyBuilder) {
+
     }
 }

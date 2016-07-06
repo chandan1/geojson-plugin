@@ -7,8 +7,6 @@ import java.util.Map;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriterRegistry;
 import com.chandan.osmosis.plugin.geojson.writer.FileFeatureWriter;
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskConfiguration;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManager;
 import org.openstreetmap.osmosis.core.pipeline.common.TaskManagerFactory;
@@ -25,7 +23,7 @@ public class GeoJsonTaskFactory extends TaskManagerFactory {
         new FileFeatureWriter().register();
 
         String geoJsonWriter = getStringArgument(taskConfig, GEO_JSON_WRITER);
-        FeatureWriter featureWriter = FeatureWriterRegistry.getInstance().getFileWriter(geoJsonWriter);
+        FeatureWriter featureWriter = FeatureWriterRegistry.instance().getFileWriter(geoJsonWriter);
 
         Map<String, String> paramValues = new HashMap<>();
         List<String> params = featureWriter.getArguments();

@@ -5,9 +5,9 @@ import com.chandan.geojson.model.Geometry;
 import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
 
 
-public abstract class OsmToFeatureConverter<T extends Entity, U extends Geometry> {
+public interface OsmToFeatureConverter<T extends Entity, U extends Geometry> {
 
-	public abstract Feature<U> getGeojsonModel(T t);
-
-	public abstract boolean isValid(Feature<U> feature);
+	Feature<U> convert(T t);
+	void setNext(OsmToFeatureConverter<T, U> nextConverter);
+	void setProperties(T t, Feature.FeatureBuilder<U> propertyBuilder);
 }

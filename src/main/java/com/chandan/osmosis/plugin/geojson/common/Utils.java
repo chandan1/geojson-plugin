@@ -26,22 +26,4 @@ public class Utils {
 		}
 		return (T) objectMapper.readValue(data, t);
 	}
-
-	public static <T extends Entity, U extends Geometry> void populateCommonProperties(T t,
-			CommonProperties<U> properties) {
-		if ((t.getTags() != null && t.getTags().size() > 0)) {
-			properties.setOsmId(t.getId());
-			String name = ((TagCollection) t.getTags()).buildMap().get("name");
-			if (name != null && name.length() > 0) {
-				properties.setName(name);
-			}
-		}
-	}
-
-	public static <T extends Geometry> boolean hasCommonProperty(CommonProperties<T> properties) {
-		if (properties.getOsmId() > 0 || (properties.getName() != null && properties.getName().length() > 0)) {
-			return true;
-		}
-		return false;
-	}
 }

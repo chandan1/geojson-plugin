@@ -6,6 +6,7 @@ import com.chandan.geojson.model.LineStringProperties;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
+import com.chandan.osmosis.plugin.geojson.converter.FeaturePropertyBuilder;
 import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeatureLineStringConverter;
 import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeaturePolygonConverter;
 import com.chandan.osmosis.plugin.geojson.processor.OsmEntityProcessor;
@@ -32,7 +33,8 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
     public OsmWayProcessor(FeaturePointCache featurePointCache,
                            FeatureLinestringCache featureLinestringCache,
-                           FeatureWriter writer) {
+                           FeatureWriter writer
+                           ) {
         this.featurePointCache = featurePointCache;
         this.featureLinestringCache = featureLinestringCache;
         this.writer = writer;
@@ -42,8 +44,8 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
     @Override
     public void process(Way way) {
-        Feature<LineString> lineStringFeature = osmWayToFeatureLineStringConverter.getGeojsonModel(way);
-        if (((LineStringProperties)lineStringFeature.getProperties()).getHighway() != null) {
+        Feature<LineString> lineStringFeature = osmWayToFeatureLineStringConverter.convert(way);
+        if (lineStringFeature != null) {
             writer.write(lineStringFeature);
         } else {
 
