@@ -1,9 +1,11 @@
+group 'com.chandan'
+version '1.0-SNAPSHOT'
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'maven'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 configurations {
     provided
@@ -35,7 +37,6 @@ dependencies {
 
 jar {
     baseName = 'geojson-plugin'
-    version = '1.0-SNAPSHOT'
     dependsOn configurations.runtime
     from {
         (configurations.runtime - configurations.provided).collect {

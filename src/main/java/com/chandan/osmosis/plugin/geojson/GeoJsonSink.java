@@ -18,6 +18,7 @@ import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -83,7 +84,7 @@ public class GeoJsonSink implements Sink {
 		switch (entityType) {
 		case Bound:
 			Bound bound = (Bound) entity;
-			List<List<Coordinate>> coordinates = ImmutableList.of(ImmutableList.of(
+			List<List<Coordinate>> coordinates = ImmutableList.<List<Coordinate>>of(ImmutableList.of(
 					new Coordinate((float) bound.getLeft(), (float) bound.getBottom()),
 					new Coordinate((float) bound.getRight(), (float) bound.getBottom()),
 					new Coordinate((float) bound.getRight(), (float) bound.getTop()),
