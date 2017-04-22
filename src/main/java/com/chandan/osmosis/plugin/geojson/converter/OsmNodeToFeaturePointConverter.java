@@ -28,7 +28,7 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 	public Feature<Point> convert(Node node) {
 		Feature.FeatureBuilder<Point> featureBuilder = Feature.builder();
 		setProperties(node, featureBuilder);
-		featureBuilder.id(String.valueOf(node.getId()));
+		featureBuilder.id(node.getId());
 		featureBuilder.geometry(new Point(new Coordinate((float) node.getLongitude(), (float) node.getLatitude())));
 		Feature<Point> feature = featureBuilder.build();
 		featurePointCache.put(node.getId(), feature);

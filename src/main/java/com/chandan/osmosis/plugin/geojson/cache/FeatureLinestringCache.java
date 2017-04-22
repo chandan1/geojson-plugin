@@ -4,18 +4,17 @@ import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.LineString;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.primitives.Longs;
-import org.fusesource.leveldbjni.JniDBFactory;
-import org.iq80.leveldb.DB;
-import org.iq80.leveldb.Options;
+import org.h2.mvstore.MVStore;
 
-import java.io.File;
+import java.util.Map;
 
 public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 
 	private final String pathToDir;
 
-	private DB featureLinestringCacheDb;
+	private MVStore mvStore;
+
+	private Map<String, byte[]> map;
 
 	public FeatureLinestringCache(String pathToDir) {
 		this.pathToDir = pathToDir;
@@ -23,30 +22,18 @@ public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 
 	@Override
 	public void open() {
-		Options options = new Options();
-		options.createIfMissing(true);
-		try {
-			featureLinestringCacheDb = JniDBFactory.factory
-					.open(new File(pathToDir + "/featureLinestringCacheDb"), options);
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		this.mvStore = new MVStore.Builder().fileName(pathToDir + "/featureLinestringCacheDb").compress().open();
+		this.map = this.mvStore.openMap("featureLinestringCacheDb");
 	}
 
 	@Override
 	public void close() {
-		try {
-			featureLinestringCacheDb.close();
-		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		this.mvStore.close();
 	}
 
 	@Override
 	public Feature<LineString> get(long key) {
-		byte[] data = featureLinestringCacheDb.get(Longs.toByteArray(key));
+		byte[] data = this.map.get(String.valueOf(key));
 		if (data != null) {
 			try {
 				return Utils.<Feature<LineString>>jsonDecode(data, new TypeReference<Feature<LineString>>() {
@@ -65,7 +52,7 @@ public class FeatureLinestringCache implements Cache<Feature<LineString>> {
 		try {
 			String data = Utils.jsonEncode(t);
 			if (data != null) {
-				featureLinestringCacheDb.put(Longs.toByteArray(key), data.getBytes());
+				this.map.put(String.valueOf(key), data.getBytes());
 			}
 		}
 		catch (Exception e) {

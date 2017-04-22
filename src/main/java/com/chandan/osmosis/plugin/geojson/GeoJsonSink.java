@@ -94,7 +94,7 @@ public class GeoJsonSink implements Sink {
 			Polygon polygon = new Polygon(coordinates);
 			BoundingBox boundingBox = new BoundingBox((float) bound.getLeft(), (float) bound.getBottom(),
 					(float) bound.getRight(), (float) bound.getTop());
-			Feature<Polygon> feature = new Feature<>(null, polygon, null, boundingBox);
+			Feature<Polygon> feature = new Feature<>(0, polygon, null, boundingBox);
 			featureWriter.write(feature);
 			break;
 		case Node:

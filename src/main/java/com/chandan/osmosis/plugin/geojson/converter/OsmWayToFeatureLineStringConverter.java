@@ -63,7 +63,7 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 			coordinates.add(point.getGeometry().getCoordinates());
 		}
 		featureBuilder.geometry(new LineString(coordinates));
-		featureBuilder.id(String.valueOf(t.getId()));
+		featureBuilder.id(t.getId());
 		setProperties(t, featureBuilder);
 		Feature<LineString> feature = featureBuilder.build();
 		lineStringCache.put(t.getId(), feature);
