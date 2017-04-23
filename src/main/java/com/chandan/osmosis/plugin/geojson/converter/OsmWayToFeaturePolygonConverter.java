@@ -29,9 +29,4 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 	public void setNext(OsmToFeatureConverter<Way, Polygon> nextConverter) {
 
 	}
-
-	@Override
-	public void setProperties(Way way, Feature.FeatureBuilder<Polygon> propertyBuilder) {
-
-	}
 }

@@ -14,7 +14,7 @@ public class TestGeoJsonWriterPlugin {
 		String rootPath = osmXmlPath.substring(0, osmXmlPath.lastIndexOf('/'));
 		String directoryForCache = rootPath + "/cache";
 		String geoJsonFile = rootPath + "/map.json";
-
+		System.out.println(geoJsonFile);
 		Osmosis.run(new String[] {
 				"-plugin",
 				"com.chandan.osmosis.plugin.geojson.GeoJsonPluginLoader",

@@ -6,6 +6,7 @@ import com.chandan.geojson.model.LineString;
 import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
+import com.chandan.osmosis.plugin.geojson.common.Utils;
 import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
 import org.openstreetmap.osmosis.core.domain.v0_6.TagCollection;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
@@ -23,16 +24,12 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 
 	private final FeatureLinestringCache lineStringCache;
 
-	private final FeaturePropertyBuilder<Way, LineString> featurePropertyBuilder;
-
 	private OsmToFeatureConverter<Way, LineString> nextConverter;
 
 	public OsmWayToFeatureLineStringConverter(FeaturePointCache pointCache,
 			FeatureLinestringCache lineStringCache) {
 		this.pointCache = pointCache;
 		this.lineStringCache = lineStringCache;
-		this.featurePropertyBuilder = FeaturePropertyBuilderRegistry.instance()
-				.getPropertyBuilder(Way.class, LineString.class);
 	}
 
 	@Override
@@ -64,7 +61,7 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 		}
 		featureBuilder.geometry(new LineString(coordinates));
 		featureBuilder.id(t.getId());
-		setProperties(t, featureBuilder);
+		Utils.setPropertiesForFeature(t, featureBuilder);
 		Feature<LineString> feature = featureBuilder.build();
 		lineStringCache.put(t.getId(), feature);
 		if (feature.getProperties() != null) {
@@ -78,22 +75,5 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 	@Override
 	public void setNext(OsmToFeatureConverter<Way, LineString> nextConverter) {
 		this.nextConverter = nextConverter;
-	}
-
-	@Override
-	public void setProperties(Way t, Feature.FeatureBuilder<LineString> featureBuilder) {
-		if (featurePropertyBuilder != null) {
-			featurePropertyBuilder.getProperties(t, featureBuilder);
-			return;
-		}
-
-		if ((t.getTags() != null && t.getTags().size() > 0)) {
-			Map<String, Object> properties = new HashMap<>();
-			Map<String, String> tagsMap = ((TagCollection) t.getTags()).buildMap();
-			for (Map.Entry<String, String> entry : tagsMap.entrySet()) {
-				properties.put(entry.getKey(), entry.getValue());
-			}
-			featureBuilder.properties(properties);
-		}
 	}
 }
