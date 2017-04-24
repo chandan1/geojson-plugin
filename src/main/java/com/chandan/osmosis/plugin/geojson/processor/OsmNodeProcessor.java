@@ -19,8 +19,7 @@ public class OsmNodeProcessor extends OsmEntityProcessor<Node> {
 	private final OsmNodeToFeaturePointConverter osmNodeToFeaturePointConverter;
 
 	public OsmNodeProcessor(FeaturePointCache featurePointCache,
-			FeatureWriter writer
-	) {
+			FeatureWriter writer) {
 		this.featurePointCache = featurePointCache;
 		this.writer = writer;
 		this.osmNodeToFeaturePointConverter = new OsmNodeToFeaturePointConverter(featurePointCache);

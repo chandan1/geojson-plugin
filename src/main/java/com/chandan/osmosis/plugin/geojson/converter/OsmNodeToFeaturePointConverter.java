@@ -15,8 +15,6 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 
 	private final FeaturePointCache featurePointCache;
 
-	private OsmToFeatureConverter<Node, Point> nextConverter;
-
 	public OsmNodeToFeaturePointConverter(FeaturePointCache featurePointCache) {
 		this.featurePointCache = featurePointCache;
 	}
@@ -35,10 +33,5 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 		else {
 			return null;
 		}
-	}
-
-	@Override
-	public void setNext(OsmToFeatureConverter<Node, Point> nextConverter) {
-		this.nextConverter = nextConverter;
 	}
 }

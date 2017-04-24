@@ -5,6 +5,7 @@ import com.chandan.geojson.model.Geometry;
 import com.chandan.geojson.model.LineString;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
+import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeatureLineStringConverter;
 import com.chandan.osmosis.plugin.geojson.converter.OsmWayToFeaturePolygonConverter;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
@@ -15,9 +16,6 @@ import org.openstreetmap.osmosis.core.domain.v0_6.Way;
  */
 public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
-	private final FeaturePointCache featurePointCache;
-
-	private final FeatureLinestringCache featureLinestringCache;
 
 	private final FeatureWriter writer;
 
@@ -27,25 +25,27 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
 	public OsmWayProcessor(FeaturePointCache featurePointCache,
 			FeatureLinestringCache featureLinestringCache,
-			FeatureWriter writer
-	) {
-		this.featurePointCache = featurePointCache;
-		this.featureLinestringCache = featureLinestringCache;
+			FeaturePolygonCache featurePolygonCache,
+			FeatureWriter writer) {
+
 		this.writer = writer;
-		this.osmWayToFeatureLineStringConverter = new OsmWayToFeatureLineStringConverter(featurePointCache,
-				featureLinestringCache);
 		this.osmWayToFeaturePolygonConverter = new OsmWayToFeaturePolygonConverter(featurePointCache,
+				featurePolygonCache);
+		this.osmWayToFeatureLineStringConverter = new OsmWayToFeatureLineStringConverter(featurePointCache,
 				featureLinestringCache);
 	}
 
 	@Override
 	public void process(Way way) {
-		Feature<? extends Geometry> lineStringFeature = osmWayToFeatureLineStringConverter.convert(way);
-		if (lineStringFeature != null) {
-			writer.write(lineStringFeature);
+		Feature<? extends Geometry> feature = osmWayToFeatureLineStringConverter.convert(way);
+		if (feature != null) {
+			writer.write(feature);
+			return;
 		}
-		else {
-
+		feature = osmWayToFeaturePolygonConverter.convert(way);
+		if (feature != null) {
+			writer.write(feature);
+			return;
 		}
 	}
 }

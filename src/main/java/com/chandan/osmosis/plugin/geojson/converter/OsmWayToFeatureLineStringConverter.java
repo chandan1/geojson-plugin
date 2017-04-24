@@ -7,24 +7,17 @@ import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import org.openstreetmap.osmosis.core.domain.v0_6.Tag;
-import org.openstreetmap.osmosis.core.domain.v0_6.TagCollection;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter<Way, LineString> {
 
 	private final FeaturePointCache pointCache;
 
 	private final FeatureLinestringCache lineStringCache;
-
-	private OsmToFeatureConverter<Way, LineString> nextConverter;
 
 	public OsmWayToFeatureLineStringConverter(FeaturePointCache pointCache,
 			FeatureLinestringCache lineStringCache) {
@@ -37,14 +30,8 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 		if (t == null && (t.getWayNodes() == null || t.getWayNodes().size() <= 1)) {
 			return null;
 		}
-		if (t.getWayNodes().get(0).getNodeId() == t.getWayNodes().get(t.getWayNodes().size() - 1).getNodeId()
-				&& t.getTags().contains(new Tag("area", "yes"))) {
-			if (this.nextConverter != null) {
-				return this.nextConverter.convert(t);
-			}
-			else {
-				return null;
-			}
+		if (Utils.isPolygon(t)) {
+			return null;
 		}
 
 		Feature.FeatureBuilder<LineString> featureBuilder = Feature.builder();
@@ -70,10 +57,5 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 		else {
 			return null;
 		}
-	}
-
-	@Override
-	public void setNext(OsmToFeatureConverter<Way, LineString> nextConverter) {
-		this.nextConverter = nextConverter;
 	}
 }

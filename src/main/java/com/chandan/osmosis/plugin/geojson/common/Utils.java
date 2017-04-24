@@ -7,10 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import org.openstreetmap.osmosis.core.domain.v0_6.Entity;
-import org.openstreetmap.osmosis.core.domain.v0_6.Node;
-import org.openstreetmap.osmosis.core.domain.v0_6.TagCollection;
-import org.openstreetmap.osmosis.core.domain.v0_6.Way;
+import org.openstreetmap.osmosis.core.domain.v0_6.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,5 +43,17 @@ public class Utils {
 			}
 			featureBuilder.properties(mapBuilder.build());
 		}
+	}
+
+	public static boolean isPolygon(Way way) {
+		Objects.requireNonNull(way, "way cannot be null");
+		Objects.requireNonNull(way.getWayNodes(), "wayNodes cannot be null");
+		if (way.getWayNodes().size() > 0 ) {
+			if (way.getWayNodes().get(0).getNodeId() == way.getWayNodes().get(way.getWayNodes().size() - 1).getNodeId()
+					&& way.getTags().contains(new Tag("area", "yes"))) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

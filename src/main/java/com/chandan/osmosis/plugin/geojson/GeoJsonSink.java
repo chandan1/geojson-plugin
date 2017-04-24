@@ -6,6 +6,7 @@ import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Polygon;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
+import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.processor.OsmNodeProcessor;
 import com.chandan.osmosis.plugin.geojson.processor.OsmWayProcessor;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
@@ -29,6 +30,8 @@ public class GeoJsonSink implements Sink {
 	private FeaturePointCache pointCache;
 
 	private FeatureLinestringCache lineStringCache;
+
+	private FeaturePolygonCache polygonCache;
 
 	private FeatureWriter featureWriter;
 
@@ -55,8 +58,10 @@ public class GeoJsonSink implements Sink {
 		pointCache.open();
 		lineStringCache = new FeatureLinestringCache(directoryForCache);
 		lineStringCache.open();
+		polygonCache = new FeaturePolygonCache(directoryForCache);
+		polygonCache.open();
 		this.osmNodeProcessor = new OsmNodeProcessor(pointCache, featureWriter);
-		this.osmWayProcessor = new OsmWayProcessor(pointCache, lineStringCache, featureWriter);
+		this.osmWayProcessor = new OsmWayProcessor(pointCache, lineStringCache, polygonCache, featureWriter);
 		System.out.println("GeoJsonPlugin initialised");
 	}
 
