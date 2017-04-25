@@ -36,7 +36,7 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 			return null;
 		}
 
-		Feature.FeatureBuilder<LineString> featureBuilder = Feature.builder();
+		Feature.FeatureBuilder<Polygon> featureBuilder = Feature.builder();
 
 		List<Coordinate> coordinates = new ArrayList<Coordinate>(t.getWayNodes().size());
 		for (WayNode node : t.getWayNodes()) {
@@ -48,11 +48,18 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 			}
 			coordinates.add(point.getGeometry().getCoordinates());
 		}
-		featureBuilder.geometry(new LineString(coordinates));
+		List<List<Coordinate>> coordinatesList = new ArrayList<List<Coordinate>>(1);
+		coordinatesList.add(coordinates);
+		featureBuilder.geometry(new Polygon(new ArrayList<List<Coordinate>>()));
 		featureBuilder.id(t.getId());
 		Utils.setPropertiesForFeature(t, featureBuilder);
-		Feature<LineString> feature = featureBuilder.build();
-
-		return null;
+		Feature<Polygon> feature = featureBuilder.build();
+		polygonCache.put(t.getId(), feature);
+		if (feature.getProperties() != null) {
+			return feature;
+		}
+		else {
+			return null;
+		}
 	}
 }
