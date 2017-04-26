@@ -2,6 +2,7 @@ package com.chandan.osmosis.plugin.geojson.common;
 
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Point;
+import com.chandan.geojson.model.Polygon;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
