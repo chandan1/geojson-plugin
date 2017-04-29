@@ -1,8 +1,6 @@
 package com.chandan.osmosis.plugin.geojson.common;
 
-import com.chandan.geojson.model.Feature;
-import com.chandan.geojson.model.Point;
-import com.chandan.geojson.model.Polygon;
+import com.chandan.geojson.model.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,9 +14,11 @@ import java.util.Objects;
 
 public class Utils {
 
-	public static String START_NODE_ID_TAG = "startNodeId";
+	private static String START_NODE_ID_TAG = "startNodeId";
 
-	public static String END_NODE_ID_TAG = "endNodeId";
+	private static String END_NODE_ID_TAG = "endNodeId";
+
+	private static String OSM_ID = "id";
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -55,13 +55,39 @@ public class Utils {
 				}
 				mapBuilder.put(entry.getKey(), entry.getValue());
 			}
+			mapBuilder.put(OSM_ID, entity.getId());
 			if (entity.getType() == EntityType.Way) {
 				mapBuilder.put(START_NODE_ID_TAG, ((Way) entity).getWayNodes().get(0).getNodeId());
 				mapBuilder.put(END_NODE_ID_TAG, (((Way) entity).getWayNodes().get(((Way) entity).getWayNodes().size() - 1).getNodeId()));
 			}
+
 			Map<String, Object> properties = mapBuilder.build();
 			featureBuilder.properties(properties.size() > 0 ? properties : null);
 		}
+	}
+
+	public static boolean hasOnlyDefaultProperties(Feature<Polygon> polygonFeature) {
+		Objects.requireNonNull(polygonFeature, "polygonFeature cannot be null");
+		return polygonFeature.getProperties() != null
+				&& polygonFeature.getProperties().size() == 2
+				&& polygonFeature.getProperties().containsKey(START_NODE_ID_TAG)
+				&& polygonFeature.getProperties().containsKey(END_NODE_ID_TAG);
+	}
+
+	public static Long getEndNode(Feature<LineString> lineStringFeature) {
+		Objects.requireNonNull(lineStringFeature, "lineStringFeature cannot be null");
+		if (lineStringFeature.getProperties() != null) {
+			return (Long)lineStringFeature.getProperties().get(END_NODE_ID_TAG);
+		}
+		return null;
+	}
+
+	public static Long getStartNode(Feature<LineString> lineStringFeature) {
+		Objects.requireNonNull(lineStringFeature, "lineStringFeature cannot be null");
+		if (lineStringFeature.getProperties() != null) {
+			return (Long)lineStringFeature.getProperties().get(START_NODE_ID_TAG);
+		}
+		return null;
 	}
 
 	public static boolean isPolygon(Way way) {
@@ -82,4 +108,13 @@ public class Utils {
 		}
 		return false;
 	}
+
+	public static Long getOsmId(Feature<? extends Geometry> feature) {
+		Objects.requireNonNull(feature, "feature cannot be null");
+		if (feature.getProperties() != null) {
+			feature.getProperties().get(OSM_ID);
+		}
+		return null;
+	}
+
 }

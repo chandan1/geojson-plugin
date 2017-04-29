@@ -8,6 +8,7 @@ import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.processor.OsmNodeProcessor;
+import com.chandan.osmosis.plugin.geojson.processor.OsmRelationProcessor;
 import com.chandan.osmosis.plugin.geojson.processor.OsmWayProcessor;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import com.google.common.collect.ImmutableList;
@@ -39,6 +40,8 @@ public class GeoJsonSink implements Sink {
 
 	private OsmWayProcessor osmWayProcessor;
 
+	private OsmRelationProcessor osmRelationProcessor;
+
 	public GeoJsonSink(FeatureWriter featureWriter, String directoryForCache) {
 		this.featureWriter = featureWriter;
 		this.directoryForCache = directoryForCache;
@@ -62,6 +65,7 @@ public class GeoJsonSink implements Sink {
 		polygonCache.open();
 		this.osmNodeProcessor = new OsmNodeProcessor(pointCache, featureWriter);
 		this.osmWayProcessor = new OsmWayProcessor(pointCache, lineStringCache, polygonCache, featureWriter);
+
 		System.out.println("GeoJsonPlugin initialised");
 	}
 
@@ -112,6 +116,7 @@ public class GeoJsonSink implements Sink {
 			break;
 		case Relation:
 			Relation relation = (Relation) entity;
+			osmRelationProcessor.process(relation);
 			break;
 		}
 	}
