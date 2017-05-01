@@ -5,6 +5,7 @@ import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
+import com.google.common.collect.ImmutableMap;
 import org.openstreetmap.osmosis.core.domain.v0_6.EntityType;
 import org.openstreetmap.osmosis.core.domain.v0_6.Relation;
 import org.openstreetmap.osmosis.core.domain.v0_6.RelationMember;
@@ -33,8 +34,7 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 
 	@Override
 	public List<Feature<Polygon>> convert(Relation relation) {
-		List<List<List<Coordinate>>> ringGroup = new ArrayList<>();
-		List<Feature<Polygon>> preexistingPolygons = new ArrayList<>();
+		List<Feature<Polygon>> polygons = new ArrayList<>();
 		Map<Long, LineStringUsage> outerStartNodeIdLineStringMap = new HashMap<>();
 		Map<Long, LineStringUsage> innerStartNodeIdLineStringMap = new HashMap<>();
 		Iterator<RelationMember> relationMembersIt = relation.getMembers().iterator();
@@ -43,20 +43,20 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 			RelationMember relationMember = relationMembersIt.next();
 			if (relationMember.getMemberRole() == ""
 					|| relationMember.getMemberRole() == "outer") {
-				handleRelationMember(relationMember, outerStartNodeIdLineStringMap, preexistingPolygons);
+				handleRelationMember(relationMember, outerStartNodeIdLineStringMap, polygons);
 			}
 			if (relationMember.getMemberRole() == "inner") {
-				handleRelationMember(relationMember, innerStartNodeIdLineStringMap, preexistingPolygons);
+				handleRelationMember(relationMember, innerStartNodeIdLineStringMap, polygons);
 			}
 		}
-		return null;
+		return polygons;
 	}
 
-	private void addRingGroups(Map<Long, LineStringUsage> lineStringUsageMap, List<List<List<Coordinate>>> ringGroup) {
+	private void addRingGroups(Map<Long, LineStringUsage> lineStringUsageMap, List<Feature<Polygon>> polygons) {
 		Set<Long> startNodeIds = lineStringUsageMap.keySet();
 		while (!startNodeIds.isEmpty()) {
 			List<Coordinate> ring = new ArrayList<>();
-			Long ringGroupStartNodeId = startNodeIds.iterator().next();
+			final Long ringGroupStartNodeId = startNodeIds.iterator().next();
 			LineStringUsage lineStringUsage = lineStringUsageMap.get(ringGroupStartNodeId);
 			if (lineStringUsage == null) {
 				throw new IllegalArgumentException("Polygon incomplete");
@@ -74,7 +74,13 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 			if (!currentEndNodeId.equals(ringGroupStartNodeId)) {
 				throw new IllegalArgumentException("Polygon incomplete");
 			}
-			ringGroup.add(Arrays.asList(ring));
+			polygons.add(
+					Feature.<Polygon>builder()
+							.geometry(new Polygon(Arrays.asList(ring)))
+							.properties(ImmutableMap.<String, Object>of(Utils.START_NODE_ID_TAG, ringGroupStartNodeId,
+									Utils.END_NODE_ID_TAG, currentEndNodeId))
+							.build());
+			startNodeIds.remove(ringGroupStartNodeId);
 		}
 	}
 

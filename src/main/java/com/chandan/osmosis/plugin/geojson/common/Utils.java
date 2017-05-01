@@ -14,9 +14,9 @@ import java.util.Objects;
 
 public class Utils {
 
-	private static String START_NODE_ID_TAG = "startNodeId";
+	public static String START_NODE_ID_TAG = "startNodeId";
 
-	private static String END_NODE_ID_TAG = "endNodeId";
+	public static String END_NODE_ID_TAG = "endNodeId";
 
 	private static String OSM_ID = "id";
 
