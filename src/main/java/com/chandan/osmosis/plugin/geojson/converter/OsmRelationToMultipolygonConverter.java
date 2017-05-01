@@ -49,10 +49,12 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 				handleRelationMember(relationMember, innerStartNodeIdLineStringMap, polygons);
 			}
 		}
+		addPolygonsFromLineString(outerStartNodeIdLineStringMap, polygons);
+		addPolygonsFromLineString(innerStartNodeIdLineStringMap, polygons);
 		return polygons;
 	}
 
-	private void addRingGroups(Map<Long, LineStringUsage> lineStringUsageMap, List<Feature<Polygon>> polygons) {
+	private void addPolygonsFromLineString(Map<Long, LineStringUsage> lineStringUsageMap, List<Feature<Polygon>> polygons) {
 		Set<Long> startNodeIds = lineStringUsageMap.keySet();
 		while (!startNodeIds.isEmpty()) {
 			List<Coordinate> ring = new ArrayList<>();
