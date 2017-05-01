@@ -5,11 +5,15 @@ import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
+import com.google.common.collect.ImmutableList;
+import com.sun.tools.javac.comp.Todo;
+import com.sun.xml.internal.bind.v2.TODO;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -27,7 +31,7 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 	}
 
 	@Override
-	public Feature<Polygon> convert(Way t) {
+	public List<Feature<Polygon>> convert(Way t) {
 
 		if (t == null && (t.getWayNodes() == null || t.getWayNodes().size() <= 1)) {
 			return null;
@@ -55,11 +59,10 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 		Utils.setPropertiesForFeature(t, featureBuilder);
 		Feature<Polygon> feature = featureBuilder.build();
 		polygonCache.put(t.getId(), feature);
-		if (feature.getProperties() != null) {
-			return feature;
+
+		if (!Utils.hasOnlyDefaultProperties(feature)) {
+			return ImmutableList.of(feature);
 		}
-		else {
-			return null;
-		}
+		return Collections.emptyList();
 	}
 }

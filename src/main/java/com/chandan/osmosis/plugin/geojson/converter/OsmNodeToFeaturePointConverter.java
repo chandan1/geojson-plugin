@@ -5,10 +5,13 @@ import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
+import com.google.common.collect.ImmutableList;
 import org.openstreetmap.osmosis.core.domain.v0_6.Node;
 import org.openstreetmap.osmosis.core.domain.v0_6.TagCollection;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Node, Point> {
@@ -20,7 +23,7 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 	}
 
 	@Override
-	public Feature<Point> convert(Node node) {
+	public List<Feature<Point>> convert(Node node) {
 		Feature.FeatureBuilder<Point> featureBuilder = Feature.builder();
 		Utils.setPropertiesForFeature(node, featureBuilder);
 		featureBuilder.id(node.getId());
@@ -28,10 +31,8 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 		Feature<Point> feature = featureBuilder.build();
 		featurePointCache.put(node.getId(), feature);
 		if (feature.getProperties() != null) {
-			return feature;
+			return ImmutableList.of(feature);
 		}
-		else {
-			return null;
-		}
+		return Collections.emptyList();
 	}
 }

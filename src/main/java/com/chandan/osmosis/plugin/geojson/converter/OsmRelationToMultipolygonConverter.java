@@ -5,20 +5,16 @@ import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.PeekingIterator;
 import org.openstreetmap.osmosis.core.domain.v0_6.EntityType;
 import org.openstreetmap.osmosis.core.domain.v0_6.Relation;
 import org.openstreetmap.osmosis.core.domain.v0_6.RelationMember;
-import org.openstreetmap.osmosis.core.store.PeekableIterator;
 
-import javax.sound.sampled.Line;
 import java.util.*;
 
 /**
  * Created by chandan on 25/04/17.
  */
-public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter<Relation, MultiPolygon> {
+public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter<Relation, Polygon> {
 
 	private final FeaturePolygonCache featurePolygonCache;
 
@@ -36,24 +32,75 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 	}
 
 	@Override
-	public Feature<MultiPolygon> convert(Relation relation) {
+	public List<Feature<Polygon>> convert(Relation relation) {
 		List<List<List<Coordinate>>> ringGroup = new ArrayList<>();
-		Set<Long> usedRelationMembers = new HashSet<>();
-		PeekingIterator<RelationMember> relationMembersIt = Iterators.peekingIterator(relation.getMembers().iterator());
+		List<Feature<Polygon>> preexistingPolygons = new ArrayList<>();
+		Map<Long, LineStringUsage> outerStartNodeIdLineStringMap = new HashMap<>();
+		Map<Long, LineStringUsage> innerStartNodeIdLineStringMap = new HashMap<>();
+		Iterator<RelationMember> relationMembersIt = relation.getMembers().iterator();
 
 		while (relationMembersIt.hasNext()){
-			List<RelationMember> outerRelationMembers = new ArrayList<>();
-			List<RelationMember> innerRelationMembers = new ArrayList<>();
-
-			while (relationMembersIt.peek().getMemberRole() == ""
-					|| relationMembersIt.peek().getMemberRole() == "outer") {
-				outerRelationMembers.add(relationMembersIt.next());
+			RelationMember relationMember = relationMembersIt.next();
+			if (relationMember.getMemberRole() == ""
+					|| relationMember.getMemberRole() == "outer") {
+				handleRelationMember(relationMember, outerStartNodeIdLineStringMap, preexistingPolygons);
 			}
-			while (relationMembersIt.peek().getMemberRole() == "inner") {
-				innerRelationMembers.add(relationMembersIt.next());
+			if (relationMember.getMemberRole() == "inner") {
+				handleRelationMember(relationMember, innerStartNodeIdLineStringMap, preexistingPolygons);
 			}
 		}
 		return null;
+	}
+
+	private void addRingGroups(Map<Long, LineStringUsage> lineStringUsageMap, List<List<List<Coordinate>>> ringGroup) {
+		Set<Long> startNodeIds = lineStringUsageMap.keySet();
+		while (!startNodeIds.isEmpty()) {
+			List<Coordinate> ring = new ArrayList<>();
+			Long ringGroupStartNodeId = startNodeIds.iterator().next();
+			LineStringUsage lineStringUsage = lineStringUsageMap.get(ringGroupStartNodeId);
+			if (lineStringUsage == null) {
+				throw new IllegalArgumentException("Polygon incomplete");
+			}
+			Long currentEndNodeId = Utils.getEndNode(lineStringUsage.lineStringFeature);
+			while (!currentEndNodeId.equals(ringGroupStartNodeId)) {
+				lineStringUsage.usageCount++;
+				ring.addAll(lineStringUsage.lineStringFeature.getGeometry().getCoordinates());
+				lineStringUsage = lineStringUsageMap.get(currentEndNodeId);
+				if (lineStringUsage == null) {
+					throw new IllegalArgumentException("Polygon incomplete");
+				}
+				currentEndNodeId = Utils.getEndNode(lineStringUsage.lineStringFeature);
+			}
+			if (!currentEndNodeId.equals(ringGroupStartNodeId)) {
+				throw new IllegalArgumentException("Polygon incomplete");
+			}
+			ringGroup.add(Arrays.asList(ring));
+		}
+	}
+
+	private void handleRelationMember(RelationMember relationMember,
+			Map<Long, LineStringUsage> lineStringUsageMap, List<Feature<Polygon>> preexistingPolygons) {
+		if (relationMember.getMemberType() == EntityType.Way) {
+			Feature<LineString> lineStringFeature = featureLinestringCache.get(relationMember.getMemberId());
+			if (lineStringFeature != null) {
+				lineStringUsageMap.put(Utils.getStartNode(lineStringFeature),
+						new LineStringUsage(lineStringFeature));
+				return;
+			}
+			Feature<Polygon> polygonFeature = featurePolygonCache.get(relationMember.getMemberId());
+			if (polygonFeature != null && !Utils.hasOnlyDefaultProperties(polygonFeature)) {
+				preexistingPolygons.add(polygonFeature);
+			}
+		}
+	}
+
+	private static class LineStringUsage {
+		private Feature<LineString> lineStringFeature;
+		private int usageCount = 0;
+
+		public LineStringUsage(Feature<LineString> lineStringFeature) {
+			this.lineStringFeature = lineStringFeature;
+		}
 	}
 
 }

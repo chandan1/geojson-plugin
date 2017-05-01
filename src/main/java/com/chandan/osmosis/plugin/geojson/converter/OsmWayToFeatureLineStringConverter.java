@@ -7,6 +7,7 @@ import com.chandan.geojson.model.Point;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
+import com.google.common.collect.ImmutableList;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 
@@ -26,7 +27,7 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 	}
 
 	@Override
-	public Feature<LineString> convert(Way t) {
+	public List<Feature<LineString>> convert(Way t) {
 		if (t == null && (t.getWayNodes() == null || t.getWayNodes().size() <= 1)) {
 			return null;
 		}
@@ -52,10 +53,8 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 		Feature<LineString> feature = featureBuilder.build();
 		lineStringCache.put(t.getId(), feature);
 		if (feature.getProperties() != null) {
-			return feature;
+			return ImmutableList.of(feature);
 		}
-		else {
-			return null;
-		}
+		return Collections.emptyList();
 	}
 }
