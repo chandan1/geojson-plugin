@@ -6,8 +6,6 @@ import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
 import com.google.common.collect.ImmutableList;
-import com.sun.tools.javac.comp.Todo;
-import com.sun.xml.internal.bind.v2.TODO;
 import org.openstreetmap.osmosis.core.domain.v0_6.Way;
 import org.openstreetmap.osmosis.core.domain.v0_6.WayNode;
 

@@ -3,12 +3,15 @@ package com.chandan.osmosis.plugin.geojson.processor;
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Geometry;
 import com.chandan.geojson.model.MultiPolygon;
+import com.chandan.geojson.model.Polygon;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.converter.OsmRelationToMultipolygonConverter;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Relation;
+
+import java.util.List;
 
 /**
  * Created by chandan on 25/04/17.
@@ -39,10 +42,9 @@ public class OsmRelationProcessor extends OsmEntityProcessor<Relation> {
 
 	@Override
 	public void process(Relation relation) {
-		Feature<? extends Geometry> feature = osmRelationToMultipolygonConverter.convert(relation);
-		if (feature != null) {
-			featureWriter.write(feature);
-			return;
+		List<Feature<Polygon>> polygons = osmRelationToMultipolygonConverter.convert(relation);
+		for (Feature<Polygon> polygon : polygons) {
+			featureWriter.write(polygon);
 		}
 	}
 }
