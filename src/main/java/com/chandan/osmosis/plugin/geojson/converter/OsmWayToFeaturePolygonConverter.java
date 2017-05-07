@@ -32,10 +32,10 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 	public List<Feature<Polygon>> convert(Way t) {
 
 		if (t == null && (t.getWayNodes() == null || t.getWayNodes().size() <= 1)) {
-			return null;
+			return Collections.emptyList();
 		}
 		if (!Utils.isPolygon(t)) {
-			return null;
+			return Collections.emptyList();
 		}
 
 		Feature.FeatureBuilder<Polygon> featureBuilder = Feature.builder();

@@ -65,7 +65,7 @@ public class GeoJsonSink implements Sink {
 		polygonCache.open();
 		this.osmNodeProcessor = new OsmNodeProcessor(pointCache, featureWriter);
 		this.osmWayProcessor = new OsmWayProcessor(pointCache, lineStringCache, polygonCache, featureWriter);
-
+		this.osmRelationProcessor = new OsmRelationProcessor(featureWriter, polygonCache, lineStringCache, pointCache);
 		System.out.println("GeoJsonPlugin initialised");
 	}
 

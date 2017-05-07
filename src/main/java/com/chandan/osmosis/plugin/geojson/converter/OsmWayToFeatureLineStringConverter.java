@@ -29,10 +29,10 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 	@Override
 	public List<Feature<LineString>> convert(Way t) {
 		if (t == null && (t.getWayNodes() == null || t.getWayNodes().size() <= 1)) {
-			return null;
+			return Collections.emptyList();
 		}
 		if (Utils.isPolygon(t)) {
-			return null;
+			return Collections.emptyList();
 		}
 
 		Feature.FeatureBuilder<LineString> featureBuilder = Feature.builder();

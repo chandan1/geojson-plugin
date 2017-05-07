@@ -31,13 +31,12 @@ public class OsmRelationProcessor extends OsmEntityProcessor<Relation> {
 	public OsmRelationProcessor(FeatureWriter featureWriter,
 			FeaturePolygonCache featurePolygonCache,
 			FeatureLinestringCache featureLinestringCache,
-			FeaturePointCache featurePointCache,
-			OsmRelationToMultipolygonConverter osmRelationToMultipolygonConverter) {
+			FeaturePointCache featurePointCache) {
 		this.featureWriter = featureWriter;
 		this.featurePolygonCache = featurePolygonCache;
 		this.featureLinestringCache = featureLinestringCache;
 		this.featurePointCache = featurePointCache;
-		this.osmRelationToMultipolygonConverter = osmRelationToMultipolygonConverter;
+		this.osmRelationToMultipolygonConverter =  new OsmRelationToMultipolygonConverter(featurePolygonCache, featurePointCache, featureLinestringCache);
 	}
 
 	@Override

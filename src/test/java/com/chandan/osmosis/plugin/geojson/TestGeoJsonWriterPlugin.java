@@ -29,4 +29,28 @@ public class TestGeoJsonWriterPlugin {
 				"directoryForCache=" + directoryForCache
 		});
 	}
+
+	@Test
+	public void testGeoJsonWriterForLalbagh() {
+		String osmXmlPath = TestGeoJsonWriterPlugin.class.getClassLoader().getResource("lalbagh.osm").getPath();
+		String rootPath = osmXmlPath.substring(0, osmXmlPath.lastIndexOf('/'));
+		String directoryForCache = rootPath + "/cache";
+		String geoJsonFile = rootPath + "/lalbagh.json";
+
+		System.out.println(geoJsonFile);
+		Osmosis.run(new String[] {
+				"-plugin",
+				"com.chandan.osmosis.plugin.geojson.GeoJsonPluginLoader",
+				"--read-xml",
+				osmXmlPath,
+				"--tag-filter", "accept-ways", "highway=*",
+				"--tag-filter", "accept-relations", "highway=*",
+				"--used-node",
+				"--geojson-plugin",
+				"geojson-writer=file-writer",
+				"geojson-file=" + geoJsonFile,
+				"directoryForCache=" + directoryForCache
+		});
+
+	}
 }
