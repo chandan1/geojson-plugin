@@ -23,7 +23,7 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 	}
 
 	@Override
-	public List<Feature<Point>> convert(Node node) {
+	public Feature<Point> convert(Node node) {
 		Feature.FeatureBuilder<Point> featureBuilder = Feature.builder();
 		Utils.setPropertiesForFeature(node, featureBuilder);
 		featureBuilder.id(node.getId());
@@ -31,8 +31,8 @@ public class OsmNodeToFeaturePointConverter implements OsmToFeatureConverter<Nod
 		Feature<Point> feature = featureBuilder.build();
 		featurePointCache.put(node.getId(), feature);
 		if (feature.getProperties() != null) {
-			return ImmutableList.of(feature);
+			return feature;
 		}
-		return Collections.emptyList();
+		return null;
 	}
 }

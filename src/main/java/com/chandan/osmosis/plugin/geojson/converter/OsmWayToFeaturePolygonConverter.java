@@ -29,13 +29,13 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 	}
 
 	@Override
-	public List<Feature<Polygon>> convert(Way t) {
+	public Feature<Polygon> convert(Way t) {
 
 		if (t == null && (t.getWayNodes() == null || t.getWayNodes().size() <= 1)) {
-			return Collections.emptyList();
+			return null;
 		}
 		if (!Utils.isPolygon(t)) {
-			return Collections.emptyList();
+			return null;
 		}
 
 		Feature.FeatureBuilder<Polygon> featureBuilder = Feature.builder();
@@ -52,15 +52,15 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 		}
 		List<List<Coordinate>> coordinatesList = new ArrayList<List<Coordinate>>(1);
 		coordinatesList.add(coordinates);
-		featureBuilder.geometry(new Polygon(new ArrayList<List<Coordinate>>()));
+		featureBuilder.geometry(new Polygon(coordinatesList));
 		featureBuilder.id(t.getId());
 		Utils.setPropertiesForFeature(t, featureBuilder);
 		Feature<Polygon> feature = featureBuilder.build();
 		polygonCache.put(t.getId(), feature);
 
 		if (!Utils.hasOnlyDefaultProperties(feature)) {
-			return ImmutableList.of(feature);
+			return feature;
 		}
-		return Collections.emptyList();
+		return null;
 	}
 }

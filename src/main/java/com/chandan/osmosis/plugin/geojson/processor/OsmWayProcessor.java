@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
-
 	private final FeatureWriter writer;
 
 	private final OsmWayToFeatureLineStringConverter osmWayToFeatureLineStringConverter;
@@ -40,12 +39,13 @@ public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
 	@Override
 	public void process(Way way) {
-		List<Feature<LineString>> lineStrings = osmWayToFeatureLineStringConverter.convert(way);
-		for (Feature<LineString> lineString : lineStrings) {
+		Feature<LineString> lineString = osmWayToFeatureLineStringConverter.convert(way);
+		if (lineString != null) {
 			writer.write(lineString);
+			return;
 		}
-		List<Feature<Polygon>> polygons = osmWayToFeaturePolygonConverter.convert(way);
-		for (Feature<Polygon> polygon : polygons) {
+		Feature<Polygon> polygon = osmWayToFeaturePolygonConverter.convert(way);
+		if (polygon != null) {
 			writer.write(polygon);
 		}
 	}

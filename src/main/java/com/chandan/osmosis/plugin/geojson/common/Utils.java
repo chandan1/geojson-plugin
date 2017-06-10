@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableMap;
 import org.openstreetmap.osmosis.core.domain.v0_6.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,11 +23,8 @@ public class Utils {
 
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-	private static final Tag areaTag = new Tag("area", "yes");
-
-	private static final Tag naturalWater = new Tag("natural", "water");
-
-	private static final Tag naturalWetLand = new Tag("natural", "wetland");
+	private static final List<Tag> areaTags = ImmutableList.of(new Tag("area", "yes"),
+			new Tag("natural", "water"), new Tag("natural", "wetland"));
 
 	public static String jsonEncode(Object o) throws JsonProcessingException {
 		if (o == null)
@@ -95,14 +93,14 @@ public class Utils {
 		Objects.requireNonNull(way.getWayNodes(), "wayNodes cannot be null");
 		if (way.getWayNodes().size() > 0 ) {
 			if (way.getWayNodes().get(0).getNodeId() == way.getWayNodes().get(way.getWayNodes().size() - 1).getNodeId()) {
-				if (way.getTags().contains(areaTag)) {
-					return true;
-				}
-				if (way.getTags().contains(naturalWater)) {
-					return true;
-				}
-				if (way.getTags().contains(naturalWetLand)) {
-					return true;
+				if (way.getTags() != null) {
+					for (Tag tag : way.getTags()) {
+						for (Tag areaTag : areaTags) {
+							if (tag.compareTo(areaTag) == 0) {
+								return true;
+							}
+						}
+					}
 				}
 			}
 		}

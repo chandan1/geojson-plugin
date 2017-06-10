@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * Created by chandan on 25/04/17.
  */
-public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter<Relation, Polygon> {
+public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter<Relation, MultiPolygon> {
 
 	private final FeaturePolygonCache featurePolygonCache;
 
@@ -34,28 +34,32 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 	}
 
 	@Override
-	public List<Feature<Polygon>> convert(Relation relation) {
-		List<Feature<Polygon>> polygons = new ArrayList<>();
+	public Feature<MultiPolygon> convert(Relation relation) {
+		List<List<List<Coordinate>>> coordinates = new ArrayList<>();
 		Map<Long, Feature<LineString>> outerStartNodeIdLineStringMap = new HashMap<>();
 		Map<Long, Feature<LineString>> innerStartNodeIdLineStringMap = new HashMap<>();
 		Iterator<RelationMember> relationMembersIt = relation.getMembers().iterator();
 
 		while (relationMembersIt.hasNext()){
 			RelationMember relationMember = relationMembersIt.next();
-			if (relationMember.getMemberRole() == ""
-					|| relationMember.getMemberRole() == "outer") {
-				handleRelationMember(relationMember, outerStartNodeIdLineStringMap, polygons);
+			if ("".equals(relationMember.getMemberRole())
+					|| "outer".equals(relationMember.getMemberRole())) {
+				handleRelationMember(relationMember, outerStartNodeIdLineStringMap, coordinates);
 			}
-			if (relationMember.getMemberRole() == "inner") {
-				handleRelationMember(relationMember, innerStartNodeIdLineStringMap, polygons);
+			if ("inner".equals(relationMember.getMemberRole())) {
+				handleRelationMember(relationMember, innerStartNodeIdLineStringMap, coordinates);
 			}
 		}
-		addPolygonsFromLineString(outerStartNodeIdLineStringMap, polygons);
-		addPolygonsFromLineString(innerStartNodeIdLineStringMap, polygons);
-		return polygons;
+		addPolygonsFromLineString(outerStartNodeIdLineStringMap, coordinates);
+		addPolygonsFromLineString(innerStartNodeIdLineStringMap, coordinates);
+		Feature.FeatureBuilder<MultiPolygon> featureBuilder = Feature.builder();
+		featureBuilder.geometry(new MultiPolygon(coordinates));
+		Utils.setPropertiesForFeature(relation, featureBuilder);
+		featureBuilder.id(relation.getId());
+		return featureBuilder.build();
 	}
 
-	private void addPolygonsFromLineString(Map<Long, Feature<LineString>> lineStringUsageMap, List<Feature<Polygon>> polygons) {
+	private void addPolygonsFromLineString(Map<Long, Feature<LineString>> lineStringUsageMap, List<List<List<Coordinate>>> coordinates) {
 		Set<Long> startNodeIds = lineStringUsageMap.keySet();
 		while (!startNodeIds.isEmpty()) {
 			List<Coordinate> ring = new ArrayList<>();
@@ -76,12 +80,7 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 			if (!currentEndNodeId.equals(ringGroupStartNodeId)) {
 				throw new IllegalArgumentException("Polygon incomplete");
 			}
-			polygons.add(
-					Feature.<Polygon>builder()
-							.geometry(new Polygon(Arrays.asList(ring)))
-							.properties(ImmutableMap.<String, Object>of(Utils.START_NODE_ID_TAG, ringGroupStartNodeId,
-									Utils.END_NODE_ID_TAG, currentEndNodeId))
-							.build());
+			coordinates.add(Arrays.asList(ring));
 			startNodeIds.remove(ringGroupStartNodeId);
 		}
 		if (!startNodeIds.isEmpty()) {
@@ -90,27 +89,22 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 	}
 
 	private void handleRelationMember(RelationMember relationMember,
-			Map<Long, Feature<LineString>> lineStringMap, List<Feature<Polygon>> preexistingPolygons) {
+			Map<Long, Feature<LineString>> lineStringMap, List<List<List<Coordinate>>> coordinates) {
 		if (relationMember.getMemberType() == EntityType.Way) {
 			Feature<LineString> lineStringFeature = featureLinestringCache.get(relationMember.getMemberId());
 			if (lineStringFeature != null) {
+				if (Utils.getEndNode(lineStringFeature).equals(Utils.getStartNode(lineStringFeature))) {
+					coordinates.add(Arrays.asList(lineStringFeature.getGeometry().getCoordinates()));
+					return;
+				}
 				lineStringMap.put(Utils.getStartNode(lineStringFeature),
 						lineStringFeature);
 				return;
 			}
 			Feature<Polygon> polygonFeature = featurePolygonCache.get(relationMember.getMemberId());
 			if (polygonFeature != null && !Utils.hasOnlyDefaultProperties(polygonFeature)) {
-				preexistingPolygons.add(polygonFeature);
+				coordinates.add(polygonFeature.getGeometry().getCoordinates());
 			}
-		}
-	}
-
-	private static class LineStringUsage {
-		private Feature<LineString> lineStringFeature;
-		private int usageCount = 0;
-
-		public LineStringUsage(Feature<LineString> lineStringFeature) {
-			this.lineStringFeature = lineStringFeature;
 		}
 	}
 }

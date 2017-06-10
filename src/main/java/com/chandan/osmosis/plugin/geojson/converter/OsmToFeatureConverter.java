@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface OsmToFeatureConverter<T extends Entity, U extends Geometry> {
 
-	List<Feature<U>> convert(T t);
+	Feature<U> convert(T t);
 }

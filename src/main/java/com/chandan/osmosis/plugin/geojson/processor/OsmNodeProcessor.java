@@ -30,9 +30,10 @@ public class OsmNodeProcessor extends OsmEntityProcessor<Node> {
 
 	@Override
 	public void process(Node node) {
-		List<Feature<Point>> pointFeatures = osmNodeToFeaturePointConverter.convert(node);
-		for (Feature<Point> pointFeature : pointFeatures) {
+		Feature<Point> pointFeature = osmNodeToFeaturePointConverter.convert(node);
+		if (pointFeature != null) {
 			writer.write(pointFeature);
+			return;
 		}
 	}
 }

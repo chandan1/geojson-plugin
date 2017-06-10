@@ -41,9 +41,10 @@ public class OsmRelationProcessor extends OsmEntityProcessor<Relation> {
 
 	@Override
 	public void process(Relation relation) {
-		List<Feature<Polygon>> polygons = osmRelationToMultipolygonConverter.convert(relation);
-		for (Feature<Polygon> polygon : polygons) {
+		Feature<MultiPolygon> polygon = osmRelationToMultipolygonConverter.convert(relation);
+		if (polygon != null) {
 			featureWriter.write(polygon);
+			return;
 		}
 	}
 }
