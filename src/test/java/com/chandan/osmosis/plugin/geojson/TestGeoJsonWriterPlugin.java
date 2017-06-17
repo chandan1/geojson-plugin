@@ -42,7 +42,6 @@ public class TestGeoJsonWriterPlugin {
 				"-plugin",
 				"com.chandan.osmosis.plugin.geojson.GeoJsonPluginLoader",
 				"--rx", osmXmlPath,
-				//"--tag-filter", "accept-ways", "highway=*",
 				"--tf", "accept-relations", "highway=*",
 				"--used-node", "--used-way", "outPipe.0=MP",
 
