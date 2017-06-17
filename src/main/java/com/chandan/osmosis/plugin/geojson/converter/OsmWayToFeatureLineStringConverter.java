@@ -52,7 +52,7 @@ public class OsmWayToFeatureLineStringConverter implements OsmToFeatureConverter
 		Utils.setPropertiesForFeature(t, featureBuilder);
 		Feature<LineString> feature = featureBuilder.build();
 		lineStringCache.put(t.getId(), feature);
-		if (feature.getProperties() != null) {
+		if (!Utils.hasOnlyDefaultProperties(feature)) {
 			return feature;
 		}
 		return null;

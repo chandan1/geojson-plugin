@@ -19,8 +19,6 @@ public class Utils {
 
 	public static String END_NODE_ID_TAG = "endNodeId";
 
-	private static String OSM_ID = "id";
-
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	private static final List<Tag> areaTags = ImmutableList.of(new Tag("area", "yes"),
@@ -44,38 +42,38 @@ public class Utils {
 	public static void setPropertiesForFeature(Entity entity, Feature.FeatureBuilder featureBuilder) {
 		Objects.requireNonNull(entity, "entity cannot be null");
 		Objects.requireNonNull(featureBuilder, "featureBuilder cannot be null");
+		ImmutableMap.Builder mapBuilder = ImmutableMap.<String, Object>builder();
+		if (entity.getType() == EntityType.Way) {
+			mapBuilder.put(START_NODE_ID_TAG, (((Way) entity).getWayNodes().get(0).getNodeId()));
+			mapBuilder.put(END_NODE_ID_TAG, (((Way) entity).getWayNodes().get(((Way) entity).getWayNodes().size() - 1).getNodeId()));
+		}
+
 		if (entity.getTags() != null && entity.getTags().size() > 0) {
 			Map<String, String> tagsMap = ((TagCollection) entity.getTags()).buildMap();
-			ImmutableMap.Builder mapBuilder = ImmutableMap.<String, Object>builder();
+
 			for (Map.Entry<String, String> entry : tagsMap.entrySet()) {
 				if (entry.getKey() == "created_by") {
 					continue;
 				}
 				mapBuilder.put(entry.getKey(), entry.getValue());
 			}
-			mapBuilder.put(OSM_ID, entity.getId());
-			if (entity.getType() == EntityType.Way) {
-				mapBuilder.put(START_NODE_ID_TAG, ((Way) entity).getWayNodes().get(0).getNodeId());
-				mapBuilder.put(END_NODE_ID_TAG, (((Way) entity).getWayNodes().get(((Way) entity).getWayNodes().size() - 1).getNodeId()));
-			}
-
-			Map<String, Object> properties = mapBuilder.build();
-			featureBuilder.properties(properties.size() > 0 ? properties : null);
 		}
+		Map<String, Object> properties = mapBuilder.build();
+		featureBuilder.properties(properties.size() > 0 ? properties : null);
 	}
 
-	public static boolean hasOnlyDefaultProperties(Feature<Polygon> polygonFeature) {
-		Objects.requireNonNull(polygonFeature, "polygonFeature cannot be null");
-		return polygonFeature.getProperties() != null
-				&& polygonFeature.getProperties().size() == 2
-				&& polygonFeature.getProperties().containsKey(START_NODE_ID_TAG)
-				&& polygonFeature.getProperties().containsKey(END_NODE_ID_TAG);
+	public static boolean hasOnlyDefaultProperties(Feature<? extends GeoJson> feature) {
+		Objects.requireNonNull(feature, "feature cannot be null");
+		return feature.getProperties() != null
+				&& feature.getProperties().size() == 2
+				&& feature.getProperties().containsKey(START_NODE_ID_TAG)
+				&& feature.getProperties().containsKey(END_NODE_ID_TAG);
 	}
 
 	public static Long getEndNode(Feature<LineString> lineStringFeature) {
 		Objects.requireNonNull(lineStringFeature, "lineStringFeature cannot be null");
 		if (lineStringFeature.getProperties() != null) {
-			return (Long)lineStringFeature.getProperties().get(END_NODE_ID_TAG);
+			return ((Number)lineStringFeature.getProperties().get(END_NODE_ID_TAG)).longValue();
 		}
 		return null;
 	}
@@ -83,7 +81,7 @@ public class Utils {
 	public static Long getStartNode(Feature<LineString> lineStringFeature) {
 		Objects.requireNonNull(lineStringFeature, "lineStringFeature cannot be null");
 		if (lineStringFeature.getProperties() != null) {
-			return (Long)lineStringFeature.getProperties().get(START_NODE_ID_TAG);
+			return ((Number)lineStringFeature.getProperties().get(START_NODE_ID_TAG)).longValue();
 		}
 		return null;
 	}
@@ -106,13 +104,4 @@ public class Utils {
 		}
 		return false;
 	}
-
-	public static Long getOsmId(Feature<? extends Geometry> feature) {
-		Objects.requireNonNull(feature, "feature cannot be null");
-		if (feature.getProperties() != null) {
-			feature.getProperties().get(OSM_ID);
-		}
-		return null;
-	}
-
 }

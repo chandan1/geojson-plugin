@@ -41,11 +41,16 @@ public class TestGeoJsonWriterPlugin {
 		Osmosis.run(new String[] {
 				"-plugin",
 				"com.chandan.osmosis.plugin.geojson.GeoJsonPluginLoader",
-				"--read-xml",
-				osmXmlPath,
-				"--tag-filter", "accept-ways", "highway=*",
-				"--tag-filter", "accept-relations", "highway=*",
-				"--used-node",
+				"--rx", osmXmlPath,
+				//"--tag-filter", "accept-ways", "highway=*",
+				"--tf", "accept-relations", "highway=*",
+				"--used-node", "--used-way", "outPipe.0=MP",
+
+				"--rx", osmXmlPath,
+				"--tf", "accept-ways", "highway=*",
+				"--used-node", "outPipe.0=H",
+
+				"--merge", "inPipe.0=MP", "inPipe.1=H",
 				"--geojson-plugin",
 				"geojson-writer=file-writer",
 				"geojson-file=" + geoJsonFile,

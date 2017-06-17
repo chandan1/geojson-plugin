@@ -62,29 +62,18 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 	private void addPolygonsFromLineString(Map<Long, Feature<LineString>> lineStringUsageMap, List<List<List<Coordinate>>> coordinates) {
 		Set<Long> startNodeIds = lineStringUsageMap.keySet();
 		while (!startNodeIds.isEmpty()) {
-			List<Coordinate> ring = new ArrayList<>();
+			List<Coordinate> ringGroup = new ArrayList<>();
 			final Long ringGroupStartNodeId = startNodeIds.iterator().next();
-			Feature<LineString> lineString = lineStringUsageMap.get(ringGroupStartNodeId);
-			if (lineString == null) {
-				throw new IllegalArgumentException("Polygon incomplete");
-			}
-			Long currentEndNodeId = Utils.getEndNode(lineString);
-			while (!currentEndNodeId.equals(ringGroupStartNodeId)) {
-				ring.addAll(lineString.getGeometry().getCoordinates());
-				lineString = lineStringUsageMap.get(currentEndNodeId);
+			Long ringGroupEndNodeId = ringGroupStartNodeId;
+			do {
+				Feature<LineString> lineString  = lineStringUsageMap.remove(ringGroupEndNodeId);
 				if (lineString == null) {
 					throw new IllegalArgumentException("Polygon incomplete");
 				}
-				currentEndNodeId = Utils.getEndNode(lineString);
-			}
-			if (!currentEndNodeId.equals(ringGroupStartNodeId)) {
-				throw new IllegalArgumentException("Polygon incomplete");
-			}
-			coordinates.add(Arrays.asList(ring));
-			startNodeIds.remove(ringGroupStartNodeId);
-		}
-		if (!startNodeIds.isEmpty()) {
-			throw new IllegalArgumentException("Polygon incomplete");
+				ringGroup.addAll(lineString.getGeometry().getCoordinates());
+				ringGroupEndNodeId = Utils.getEndNode(lineString);
+			} while (!ringGroupStartNodeId.equals(ringGroupEndNodeId));
+			coordinates.add(Arrays.asList(ringGroup));
 		}
 	}
 
