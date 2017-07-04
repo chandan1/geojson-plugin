@@ -108,15 +108,27 @@ public class GeoJsonSink implements Sink {
 			break;
 		case Node:
 			Node node = (Node) entity;
-			osmNodeProcessor.process(node);
+			try {
+				osmNodeProcessor.process(node);
+			} catch (Exception e) {
+
+			}
 			break;
 		case Way:
 			Way way = (Way) entity;
-			osmWayProcessor.process(way);
+			try {
+				osmWayProcessor.process(way);
+			} catch (Exception e) {
+
+			}
 			break;
 		case Relation:
 			Relation relation = (Relation) entity;
-			osmRelationProcessor.process(relation);
+			try {
+				osmRelationProcessor.process(relation);
+			} catch (Exception e) {
+				
+			}
 			break;
 		}
 	}
