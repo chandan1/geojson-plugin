@@ -42,7 +42,7 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 
 		List<Coordinate> coordinates = new ArrayList<Coordinate>(t.getWayNodes().size());
 		for (WayNode node : t.getWayNodes()) {
-			Feature<Point> point = pointCache.get(node.getNodeId());
+			Feature<Point> point = pointCache.getAndMarkDeleted(node.getNodeId());
 			if (point == null) {
 				throw new IllegalStateException(MessageFormat.format(
 						"Node id : {0} not present in cache, for way id : {1}",
@@ -56,11 +56,6 @@ public class OsmWayToFeaturePolygonConverter implements OsmToFeatureConverter<Wa
 		featureBuilder.id(t.getId());
 		Utils.setPropertiesForFeature(t, featureBuilder);
 		Feature<Polygon> feature = featureBuilder.build();
-		polygonCache.put(t.getId(), feature);
-
-		if (!Utils.hasOnlyDefaultProperties(feature)) {
-			return feature;
-		}
-		return null;
+		return feature;
 	}
 }

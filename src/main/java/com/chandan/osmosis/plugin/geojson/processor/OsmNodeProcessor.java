@@ -17,23 +17,16 @@ public class OsmNodeProcessor extends OsmEntityProcessor<Node> {
 
 	private final FeaturePointCache featurePointCache;
 
-	private final FeatureWriter writer;
-
 	private final OsmNodeToFeaturePointConverter osmNodeToFeaturePointConverter;
 
-	public OsmNodeProcessor(FeaturePointCache featurePointCache,
-			FeatureWriter writer) {
+	public OsmNodeProcessor(FeaturePointCache featurePointCache) {
 		this.featurePointCache = featurePointCache;
-		this.writer = writer;
 		this.osmNodeToFeaturePointConverter = new OsmNodeToFeaturePointConverter(featurePointCache);
 	}
 
 	@Override
 	public void process(Node node) {
 		Feature<Point> pointFeature = osmNodeToFeaturePointConverter.convert(node);
-		if (pointFeature != null) {
-			writer.write(pointFeature);
-			return;
-		}
+		featurePointCache.put(node.getId(), pointFeature);
 	}
 }

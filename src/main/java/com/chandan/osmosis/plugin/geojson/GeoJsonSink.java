@@ -1,23 +1,24 @@
 package com.chandan.osmosis.plugin.geojson;
 
-import com.chandan.geojson.model.BoundingBox;
-import com.chandan.geojson.model.Coordinate;
-import com.chandan.geojson.model.Feature;
-import com.chandan.geojson.model.Polygon;
+import com.chandan.geojson.model.*;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
+import com.chandan.osmosis.plugin.geojson.cache.FeatureMultiPolygonCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
+import com.chandan.osmosis.plugin.geojson.common.Utils;
 import com.chandan.osmosis.plugin.geojson.processor.OsmNodeProcessor;
 import com.chandan.osmosis.plugin.geojson.processor.OsmRelationProcessor;
 import com.chandan.osmosis.plugin.geojson.processor.OsmWayProcessor;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.*;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
+import javax.rmi.CORBA.Util;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class GeoJsonSink implements Sink {
 	private FeatureLinestringCache lineStringCache;
 
 	private FeaturePolygonCache polygonCache;
+
+	private FeatureMultiPolygonCache multiPolygonCache;
 
 	private FeatureWriter featureWriter;
 
@@ -63,14 +66,46 @@ public class GeoJsonSink implements Sink {
 		lineStringCache.open();
 		polygonCache = new FeaturePolygonCache(directoryForCache);
 		polygonCache.open();
-		this.osmNodeProcessor = new OsmNodeProcessor(pointCache, featureWriter);
-		this.osmWayProcessor = new OsmWayProcessor(pointCache, lineStringCache, polygonCache, featureWriter);
-		this.osmRelationProcessor = new OsmRelationProcessor(featureWriter, polygonCache, lineStringCache, pointCache);
+
+		multiPolygonCache = new FeatureMultiPolygonCache(directoryForCache);
+		multiPolygonCache.open();
+
+		this.osmNodeProcessor = new OsmNodeProcessor(pointCache);
+		this.osmWayProcessor = new OsmWayProcessor(pointCache, lineStringCache, polygonCache);
+		this.osmRelationProcessor = new OsmRelationProcessor(polygonCache, lineStringCache, multiPolygonCache);
 		System.out.println("GeoJsonPlugin initialised");
 	}
 
 	@Override
 	public void complete() {
+		try {
+			for (Feature<Point> feature : pointCache.getValues()) {
+				if (!Utils.isMarkedDeleted(feature)) {
+					featureWriter.write(feature);
+				}
+			}
+
+			for (Feature<LineString> feature : lineStringCache.getValues()) {
+				if (!Utils.isMarkedDeleted(feature)) {
+					featureWriter.write(feature);
+				}
+			}
+
+			for (Feature<Polygon> feature : polygonCache.getValues()) {
+				if (!Utils.isMarkedDeleted(feature)) {
+					featureWriter.write(feature);
+				}
+			}
+
+			for (Feature<MultiPolygon> feature : multiPolygonCache.getValues()) {
+				if (!Utils.isMarkedDeleted(feature)) {
+					featureWriter.write(feature);
+				}
+			}
+		} catch (Exception e) {
+			throw new OsmosisRuntimeException(e);
+		}
+		System.out.println("GeoJsonPlugin completed");
 	}
 
 	@Override
@@ -111,7 +146,7 @@ public class GeoJsonSink implements Sink {
 			try {
 				osmNodeProcessor.process(node);
 			} catch (Exception e) {
-
+				throw new OsmosisRuntimeException(e);
 			}
 			break;
 		case Way:
@@ -119,7 +154,7 @@ public class GeoJsonSink implements Sink {
 			try {
 				osmWayProcessor.process(way);
 			} catch (Exception e) {
-
+				throw new OsmosisRuntimeException(e);
 			}
 			break;
 		case Relation:
@@ -127,7 +162,7 @@ public class GeoJsonSink implements Sink {
 			try {
 				osmRelationProcessor.process(relation);
 			} catch (Exception e) {
-				
+				throw new OsmosisRuntimeException(e);
 			}
 			break;
 		}

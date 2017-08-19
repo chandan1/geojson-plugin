@@ -43,13 +43,18 @@ public class TestGeoJsonWriterPlugin {
 				"com.chandan.osmosis.plugin.geojson.GeoJsonPluginLoader",
 				"--rx", osmXmlPath,
 				"--tf", "accept-relations", "highway=*",
-				"--used-node", "--used-way", "outPipe.0=MP",
+				"--used-way",
+				"--used-node", //"idTrackerType=Dynamic",
+				"outPipe.0=MP",
 
 				"--rx", osmXmlPath,
+				"--tf", "reject-relations",
 				"--tf", "accept-ways", "highway=*",
-				"--used-node", "outPipe.0=H",
+				"--used-node", //"idTrackerType=Dynamic",
+				"outPipe.0=H",
 
 				"--merge", "inPipe.0=MP", "inPipe.1=H",
+				//"--wx", rootPath + "/lalbagh2.osm"
 				"--geojson-plugin",
 				"geojson-writer=file-writer",
 				"geojson-file=" + geoJsonFile,

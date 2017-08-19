@@ -19,10 +19,31 @@ public class Utils {
 
 	public static String END_NODE_ID_TAG = "endNodeId";
 
+	public static String DELETED = "deleted";
+
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
-	private static final List<Tag> areaTags = ImmutableList.of(new Tag("area", "yes"),
-			new Tag("natural", "water"), new Tag("natural", "wetland"));
+	private static final List<List<Tag>> areaTagsList = ImmutableList.<List<Tag>>of(
+			ImmutableList.of(new Tag("area", "yes")),
+			ImmutableList.of(new Tag("natural", "water")),
+			ImmutableList.of(new Tag("natural", "wetland")),
+			ImmutableList.of(new Tag("natural", "reservoir")),
+			ImmutableList.of(new Tag("waterway", "riverbank"))
+	);
+
+	public static void markDeleted(Feature<? extends Geometry> feature) {
+		Objects.requireNonNull(feature, "feature cannot be null");
+		feature.getProperties().put(DELETED, Boolean.TRUE);
+	}
+
+	public static boolean isMarkedDeleted(Feature<? extends Geometry> feature) {
+		Objects.requireNonNull(feature, "feature cannot be null");
+		Map<String, Object> properties = feature.getProperties();
+		if (properties == null) {
+			return false;
+		}
+		return Boolean.TRUE.equals(properties.get(DELETED));
+	}
 
 	public static String jsonEncode(Object o) throws JsonProcessingException {
 		if (o == null)
@@ -59,7 +80,7 @@ public class Utils {
 			}
 		}
 		Map<String, Object> properties = mapBuilder.build();
-		featureBuilder.properties(properties.size() > 0 ? properties : null);
+		featureBuilder.properties(properties);
 	}
 
 	public static boolean hasOnlyDefaultProperties(Feature<? extends GeoJson> feature) {
@@ -92,11 +113,21 @@ public class Utils {
 		if (way.getWayNodes().size() > 0 ) {
 			if (way.getWayNodes().get(0).getNodeId() == way.getWayNodes().get(way.getWayNodes().size() - 1).getNodeId()) {
 				if (way.getTags() != null) {
+					Map<String, String> wayTagMap = new HashMap<>(way.getWayNodes().size());
 					for (Tag tag : way.getTags()) {
-						for (Tag areaTag : areaTags) {
-							if (tag.compareTo(areaTag) == 0) {
-								return true;
+						wayTagMap.put(tag.getKey(), tag.getValue());
+					}
+					for (List<Tag> areaTags : areaTagsList) {
+						boolean isPolygon = true;
+						for (Tag tag : areaTags) {
+							String value = wayTagMap.get(tag.getKey());
+							if (value == null || !value.equals(tag.getValue())) {
+								isPolygon = false;
+								break;
 							}
+						}
+						if (isPolygon) {
+							return true;
 						}
 					}
 				}

@@ -5,6 +5,7 @@ import com.chandan.geojson.model.Geometry;
 import com.chandan.geojson.model.MultiPolygon;
 import com.chandan.geojson.model.Polygon;
 import com.chandan.osmosis.plugin.geojson.cache.FeatureLinestringCache;
+import com.chandan.osmosis.plugin.geojson.cache.FeatureMultiPolygonCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePointCache;
 import com.chandan.osmosis.plugin.geojson.cache.FeaturePolygonCache;
 import com.chandan.osmosis.plugin.geojson.converter.OsmRelationToMultipolygonConverter;
@@ -18,32 +19,23 @@ import java.util.List;
  */
 public class OsmRelationProcessor extends OsmEntityProcessor<Relation> {
 
-	private final FeatureWriter featureWriter;
-
-	private final FeaturePolygonCache featurePolygonCache;
-
-	private final FeatureLinestringCache featureLinestringCache;
-
-	private final FeaturePointCache featurePointCache;
+	private final FeatureMultiPolygonCache featureMultiPolygonCache;
 
 	private final OsmRelationToMultipolygonConverter osmRelationToMultipolygonConverter;
 
-	public OsmRelationProcessor(FeatureWriter featureWriter,
+	public OsmRelationProcessor(
 			FeaturePolygonCache featurePolygonCache,
 			FeatureLinestringCache featureLinestringCache,
-			FeaturePointCache featurePointCache) {
-		this.featureWriter = featureWriter;
-		this.featurePolygonCache = featurePolygonCache;
-		this.featureLinestringCache = featureLinestringCache;
-		this.featurePointCache = featurePointCache;
-		this.osmRelationToMultipolygonConverter =  new OsmRelationToMultipolygonConverter(featurePolygonCache, featurePointCache, featureLinestringCache);
+			FeatureMultiPolygonCache featureMultiPolygonCache) {
+		this.featureMultiPolygonCache = featureMultiPolygonCache;
+		this.osmRelationToMultipolygonConverter =  new OsmRelationToMultipolygonConverter(featurePolygonCache, featureLinestringCache);
 	}
 
 	@Override
 	public void process(Relation relation) {
 		Feature<MultiPolygon> polygon = osmRelationToMultipolygonConverter.convert(relation);
 		if (polygon != null) {
-			featureWriter.write(polygon);
+			this.featureMultiPolygonCache.put(relation.getId(), polygon);
 			return;
 		}
 	}

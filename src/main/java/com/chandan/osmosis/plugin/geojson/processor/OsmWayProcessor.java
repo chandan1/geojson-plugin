@@ -19,34 +19,34 @@ import java.util.List;
  */
 public class OsmWayProcessor extends OsmEntityProcessor<Way> {
 
-	private final FeatureWriter writer;
-
 	private final OsmWayToFeatureLineStringConverter osmWayToFeatureLineStringConverter;
 
 	private final OsmWayToFeaturePolygonConverter osmWayToFeaturePolygonConverter;
 
+	private final FeatureLinestringCache featureLinestringCache;
+
+	private final FeaturePolygonCache featurePolygonCache;
+
 	public OsmWayProcessor(FeaturePointCache featurePointCache,
 			FeatureLinestringCache featureLinestringCache,
-			FeaturePolygonCache featurePolygonCache,
-			FeatureWriter writer) {
-
-		this.writer = writer;
+			FeaturePolygonCache featurePolygonCache) {
+		this.featureLinestringCache = featureLinestringCache;
+		this.featurePolygonCache = featurePolygonCache;
 		this.osmWayToFeaturePolygonConverter = new OsmWayToFeaturePolygonConverter(featurePointCache,
 				featurePolygonCache);
-		this.osmWayToFeatureLineStringConverter = new OsmWayToFeatureLineStringConverter(featurePointCache,
-				featureLinestringCache);
+		this.osmWayToFeatureLineStringConverter = new OsmWayToFeatureLineStringConverter(featurePointCache);
 	}
 
 	@Override
 	public void process(Way way) {
 		Feature<LineString> lineString = osmWayToFeatureLineStringConverter.convert(way);
 		if (lineString != null) {
-			writer.write(lineString);
+			this.featureLinestringCache.put(lineString.getId(), lineString);
 			return;
 		}
 		Feature<Polygon> polygon = osmWayToFeaturePolygonConverter.convert(way);
 		if (polygon != null) {
-			writer.write(polygon);
+			this.featurePolygonCache.put(polygon.getId(), polygon);
 		}
 	}
 }

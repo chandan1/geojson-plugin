@@ -20,16 +20,12 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 
 	private final FeaturePolygonCache featurePolygonCache;
 
-	private final FeaturePointCache featurePointCache;
-
 	private final FeatureLinestringCache featureLinestringCache;
 
 	public OsmRelationToMultipolygonConverter(
 			FeaturePolygonCache featurePolygonCache,
-			FeaturePointCache featurePointCache,
 			FeatureLinestringCache featureLinestringCache) {
 		this.featurePolygonCache = featurePolygonCache;
-		this.featurePointCache = featurePointCache;
 		this.featureLinestringCache = featureLinestringCache;
 	}
 
@@ -80,7 +76,7 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 	private void handleRelationMember(RelationMember relationMember,
 			Map<Long, Feature<LineString>> lineStringMap, List<List<List<Coordinate>>> coordinates) {
 		if (relationMember.getMemberType() == EntityType.Way) {
-			Feature<LineString> lineStringFeature = featureLinestringCache.get(relationMember.getMemberId());
+			Feature<LineString> lineStringFeature = featureLinestringCache.getAndMarkDeleted(relationMember.getMemberId());
 			if (lineStringFeature != null) {
 				if (Utils.getEndNode(lineStringFeature).equals(Utils.getStartNode(lineStringFeature))) {
 					coordinates.add(Arrays.asList(lineStringFeature.getGeometry().getCoordinates()));
@@ -90,7 +86,7 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 						lineStringFeature);
 				return;
 			}
-			Feature<Polygon> polygonFeature = featurePolygonCache.get(relationMember.getMemberId());
+			Feature<Polygon> polygonFeature = featurePolygonCache.getAndMarkDeleted(relationMember.getMemberId());
 			if (polygonFeature != null && !Utils.hasOnlyDefaultProperties(polygonFeature)) {
 				coordinates.add(polygonFeature.getGeometry().getCoordinates());
 			}
