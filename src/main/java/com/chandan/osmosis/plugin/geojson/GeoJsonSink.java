@@ -11,17 +11,14 @@ import com.chandan.osmosis.plugin.geojson.processor.OsmRelationProcessor;
 import com.chandan.osmosis.plugin.geojson.processor.OsmWayProcessor;
 import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.FileUtils;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 import org.openstreetmap.osmosis.core.container.v0_6.EntityContainer;
 import org.openstreetmap.osmosis.core.domain.v0_6.*;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 
-import javax.rmi.CORBA.Util;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +55,6 @@ public class GeoJsonSink implements Sink {
 		catch (IOException e) {
 			throw new OsmosisRuntimeException(e);
 		}
-		featureWriter.open();
 		new File(directoryForCache).mkdirs();
 		pointCache = new FeaturePointCache(directoryForCache);
 		pointCache.open();
@@ -111,7 +107,7 @@ public class GeoJsonSink implements Sink {
 	@Override
 	public void release() {
 		try {
-			featureWriter.close();
+			featureWriter.complete();
 			pointCache.close();
 			lineStringCache.close();
 		}

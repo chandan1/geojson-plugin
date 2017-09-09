@@ -13,15 +13,9 @@ public abstract class FeatureWriter {
 
 	public abstract void write(Feature<? extends Geometry> feature);
 
-	public abstract void init(Map<String, String> params);
-
-	public abstract void open();
-
-	public abstract void close();
+	public abstract void complete();
 
 	public abstract String getName();
-
-	public abstract List<String> getArguments();
 
 	public void register() {
 		FeatureWriterRegistry.instance().registerWriter(getName(), this);

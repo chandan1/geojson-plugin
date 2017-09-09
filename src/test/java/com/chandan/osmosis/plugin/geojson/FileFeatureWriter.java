@@ -1,8 +1,9 @@
-package com.chandan.osmosis.plugin.geojson.writer;
+package com.chandan.osmosis.plugin.geojson;
 
 import com.chandan.geojson.model.Feature;
 import com.chandan.geojson.model.Geometry;
 import com.chandan.osmosis.plugin.geojson.common.Utils;
+import com.chandan.osmosis.plugin.geojson.writer.FeatureWriter;
 import com.google.common.collect.ImmutableList;
 import org.openstreetmap.osmosis.core.OsmosisRuntimeException;
 
@@ -19,11 +20,11 @@ public class FileFeatureWriter extends FeatureWriter {
 
 	private final String name = "file-writer";
 
-	private final List<String> arguments = ImmutableList.of("geojson-file");
+	private final OutputStreamWriter writer;
 
-	private OutputStreamWriter writer;
-
-	private Map<String, String> params;
+	public FileFeatureWriter(OutputStreamWriter writer) {
+		this.writer = writer;
+	}
 
 	@Override
 	public void write(Feature<? extends Geometry> feature) {
@@ -36,40 +37,12 @@ public class FileFeatureWriter extends FeatureWriter {
 	}
 
 	@Override
-	public void init(Map<String, String> params) {
-		this.params = params;
-	}
-
-	@Override
-	public void open() {
-
-		try {
-			String geoJsonFile = params.get("geojson-file");
-			writer = new OutputStreamWriter(new FileOutputStream(new File(geoJsonFile)));
-		}
-		catch (Exception e) {
-			throw new OsmosisRuntimeException(e);
-		}
-	}
-
-	@Override
-	public void close() {
-		try {
-			writer.flush();
-			writer.close();
-		}
-		catch (Exception e) {
-			throw new OsmosisRuntimeException(e);
-		}
-	}
-
-	@Override
 	public String getName() {
 		return name;
 	}
 
 	@Override
-	public List<String> getArguments() {
-		return arguments;
+	public void complete() {
+		System.out.println("FileFeatureWriter completed");
 	}
 }
