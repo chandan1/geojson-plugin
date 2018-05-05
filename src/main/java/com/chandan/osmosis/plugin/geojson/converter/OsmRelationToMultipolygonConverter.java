@@ -41,13 +41,15 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 			if ("".equals(relationMember.getMemberRole())
 					|| "outer".equals(relationMember.getMemberRole())) {
 				handleRelationMember(relationMember, outerStartNodeIdLineStringMap, coordinates);
-			}
-			if ("inner".equals(relationMember.getMemberRole())) {
+			} else if ("inner".equals(relationMember.getMemberRole())) {
 				handleRelationMember(relationMember, innerStartNodeIdLineStringMap, coordinates);
+			} else {
+				throw new IllegalArgumentException(String.format("Invalid member role '%s' in relation %d",
+						new Object[]{relationMember.getMemberRole(), relation.getId()}));
 			}
 		}
-		addPolygonsFromLineString(outerStartNodeIdLineStringMap, coordinates);
-		addPolygonsFromLineString(innerStartNodeIdLineStringMap, coordinates);
+		addPolygonsFromLineString(outerStartNodeIdLineStringMap, coordinates, relation.getId());
+		addPolygonsFromLineString(innerStartNodeIdLineStringMap, coordinates, relation.getId());
 		Feature.FeatureBuilder<MultiPolygon> featureBuilder = Feature.builder();
 		featureBuilder.geometry(new MultiPolygon(coordinates));
 		Utils.setPropertiesForFeature(relation, featureBuilder);
@@ -55,7 +57,7 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 		return featureBuilder.build();
 	}
 
-	private void addPolygonsFromLineString(Map<Long, Feature<LineString>> lineStringUsageMap, List<List<List<Coordinate>>> coordinates) {
+	private void addPolygonsFromLineString(Map<Long, Feature<LineString>> lineStringUsageMap, List<List<List<Coordinate>>> coordinates, long relationId) {
 		Set<Long> startNodeIds = lineStringUsageMap.keySet();
 		while (!startNodeIds.isEmpty()) {
 			List<Coordinate> ringGroup = new ArrayList<>();
@@ -64,7 +66,7 @@ public class OsmRelationToMultipolygonConverter implements OsmToFeatureConverter
 			do {
 				Feature<LineString> lineString  = lineStringUsageMap.remove(ringGroupEndNodeId);
 				if (lineString == null) {
-					throw new IllegalArgumentException("Polygon incomplete");
+					throw new IllegalArgumentException(String.format("Polygon incomplete for relation %d", relationId));
 				}
 				ringGroup.addAll(lineString.getGeometry().getCoordinates());
 				ringGroupEndNodeId = Utils.getEndNode(lineString);

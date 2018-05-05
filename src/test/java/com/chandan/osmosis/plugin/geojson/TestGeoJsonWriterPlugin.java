@@ -1,11 +1,11 @@
 package com.chandan.osmosis.plugin.geojson;
 
+import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.Test;
 import org.openstreetmap.osmosis.core.Osmosis;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
+import java.io.*;
 
 /**
  * Created by chandan on 5/4/16.
@@ -18,7 +18,7 @@ public class TestGeoJsonWriterPlugin {
 		String rootPath = osmXmlPath.substring(0, osmXmlPath.lastIndexOf('/'));
 		String directoryForCache = rootPath + "/cache";
 		String geoJsonFile = rootPath + "/map.json";
-		System.out.println(geoJsonFile);
+		cleanDirectory(directoryForCache);
 		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(geoJsonFile)))) {
 			new FileFeatureWriter(writer).register();
 			Osmosis.run(new String[] {
@@ -42,8 +42,7 @@ public class TestGeoJsonWriterPlugin {
 		String rootPath = osmXmlPath.substring(0, osmXmlPath.lastIndexOf('/'));
 		String directoryForCache = rootPath + "/cache";
 		String geoJsonFile = rootPath + "/lalbagh.json";
-
-
+		cleanDirectory(directoryForCache);
 		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(geoJsonFile)))) {
 			new FileFeatureWriter(writer).register();
 			Osmosis.run(new String[] {
@@ -67,6 +66,40 @@ public class TestGeoJsonWriterPlugin {
 					"geojson-writer=file-writer",
 					"directoryForCache=" + directoryForCache
 			});
+		}
+	}
+
+	@Test
+	public void testGeoJsonRelationsForLalbagh() throws Exception {
+		String osmXmlPath = TestGeoJsonWriterPlugin.class.getClassLoader().getResource("lalbagh.osm").getPath();
+		String rootPath = osmXmlPath.substring(0, osmXmlPath.lastIndexOf('/'));
+		String directoryForCache = rootPath + "/cache";
+		String geoJsonFile = rootPath + "/lalbagh.json";
+		cleanDirectory(directoryForCache);
+		try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(new File(geoJsonFile)))) {
+			new FileFeatureWriter(writer).register();
+			Osmosis.run(new String[] {
+					"-plugin",
+					"com.chandan.osmosis.plugin.geojson.GeoJsonPluginLoader",
+					"--rx", osmXmlPath,
+					"--tf", "accept-relations", "highway=*",
+					"--used-way","--used-node",
+					"--geojson-plugin",
+					"geojson-writer=file-writer",
+					"directoryForCache=" + directoryForCache
+
+			});
+		}
+	}
+
+	private void cleanDirectory(String directory) {
+		if (!new File(directory).exists()) {
+			return;
+		}
+		try {
+			FileUtils.cleanDirectory(new File(directory));
+		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
