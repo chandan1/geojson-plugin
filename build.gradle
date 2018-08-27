@@ -18,10 +18,10 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.openstreetmap.osmosis', name: 'osmosis-core', version: '0.45'
-    compile group: 'org.openstreetmap.osmosis', name: 'osmosis-xml', version: '0.45'
-    compile group: 'org.openstreetmap.osmosis', name: 'osmosis-tagfilter', version: '0.45'
-    compile group: 'org.openstreetmap.osmosis', name: 'osmosis-set', version: '0.45'
+    provided group: 'org.openstreetmap.osmosis', name: 'osmosis-core', version: '0.45'
+    provided group: 'org.openstreetmap.osmosis', name: 'osmosis-xml', version: '0.45'
+    provided group: 'org.openstreetmap.osmosis', name: 'osmosis-tagfilter', version: '0.45'
+    provided group: 'org.openstreetmap.osmosis', name: 'osmosis-set', version: '0.45'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.8.0'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.8.0'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.8.0'
